@@ -1,0 +1,47 @@
+services:
+  mysql_db:
+    image: mysql:latest
+    container_name: mysql_db
+    networks:
+      - my_network
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: Root
+      MYSQL_DATABASE: wizia
+      MYSQL_USER: Root
+      MYSQL_PASSWORD: Root
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    restart: always
+    deploy:
+      resources:
+       limits:
+        cpus: "1.0"       
+        memory: "512M" 
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    networks:
+      - my_network
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql_db
+      PMA_PORT: 3306
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"       
+          memory: "256M"    
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    
