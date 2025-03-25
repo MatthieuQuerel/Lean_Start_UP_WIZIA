@@ -5,6 +5,8 @@ import Error from "../Page/Error.jsx";
 import Test from "../Page/Test.jsx";
 import Connexion from "../Page/Connexion.jsx";
 import CreateCompte from "../Page/CreateCompte.jsx";
+import MentionsLegales from "../Page/MentionsLegales.jsx";
+import PolitiqueConfidentialite from "../Page/PolitiqueConfidentialite.jsx";
 
 const Root = () => {
   return (
@@ -15,6 +17,8 @@ const Root = () => {
         <Route path="/Dashboard" element={<Welcome />} />
         <Route path="/Service" element={<Service />} />
         <Route path="/Test" element={<Test />} />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
         <Route path="*" element={<Error />} />
       </Routes>
     </BrowserRouter>

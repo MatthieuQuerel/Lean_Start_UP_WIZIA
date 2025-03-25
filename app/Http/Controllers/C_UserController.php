@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class C_UserController extends Controller
 {
@@ -25,21 +24,28 @@ class C_UserController extends Controller
     }
 
     // Ajouter un utilisateur
-    public function addUser(Request $request)
+    public function register(Request $request)
     {
-        try {
+        // try {
+            $request->validate([
+                'firstName' => 'required',
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required',
+                'number' => 'required'
+            ]);
             $user = new User();
-            $user->surname = $request->surname;
+            $user->firstName = $request->firstName;
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->password = Hash::make($request->password);
+            $user->password = password_hash($request->password, PASSWORD_DEFAULT);
             $user->number = $request->number;
             $user->save();
 
-            return response()->json(['id' => $user->id], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Erreur lors de l\'ajout de l\'utilisateur'], 500);
-        }
+            return response()->json($user, 200);
+        // } catch (\Exception $e) {
+        //     return response()->json(['message' => 'Erreur lors de l\'ajout de l\'utilisateur'], 500);
+        // }
     }
 
     // Mettre à jour un utilisateur
