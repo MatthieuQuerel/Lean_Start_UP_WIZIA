@@ -13,9 +13,9 @@ $body = 'Ceci est un test d\'envoi d\'email avec <b>PHPMailer</b> en HTML.';
 $altBody = 'Ceci est un test d\'envoi d\'email avec PHPMailer en texte brut.';
 
 // Envoyer
-if ($mailer->generateMail($to, $subject, $body, $altBody)) { 
-    echo "Email envoyé avec succès!";
-} else {
-    echo "L'envoi de l'email a échoué.";
-}
+// if ($mailer->generateMail($to, $subject, $body, $altBody)) { 
+//     echo "Email envoyé avec succès!";
+// } else {
+//     echo "L'envoi de l'email a échoué.";
+// }
 ?>
