@@ -9,6 +9,8 @@ $generation = new C_IAController();
 
 // Appeler ta méthode avec un prompt
 $response = $generation->generatprompt("salut mon ia préférée");
+echo $response;
+$response = $generation->generatpromptgemini("tu est quelle IA");
 
 // Afficher la réponse
 echo $response;
