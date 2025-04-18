@@ -44,7 +44,7 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./backend
+          local-dir: ./
           server-dir: ./backend
 
       - name: Déploiement vers le FTP Frontend
