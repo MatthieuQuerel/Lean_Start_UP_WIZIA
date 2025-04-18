@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configuration de PHP
-        uses: shivammathur/setup-php@v2
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+
         with:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, json
@@ -38,6 +39,7 @@ jobs:
 
       - name: Déploiement vers le FTP Backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
@@ -47,6 +49,7 @@ jobs:
 
       - name: Déploiement vers le FTP Frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
