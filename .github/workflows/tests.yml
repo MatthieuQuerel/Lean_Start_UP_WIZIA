@@ -1,50 +1,64 @@
-name: tests
+name: Déploiement via FTP lors de la Pull Request vers Main
 
 on:
-  push:
-    branches:
-      - develop
-      - main
   pull_request:
     branches:
-      - develop
-      - main
+      
+main
 
 jobs:
-  ci:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      
+name: Checkout du code
+      uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.4
-          tools: composer:v2
-          coverage: xdebug
+      
+name: Configuration de PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3' # Tu peux ajuster la version de PHP ici
+        extensions: mbstring, xml, ctype, json # Ajoute les extensions nécessaires à ton projet
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+      
+name: Installation des dépendances PHP
+      working-directory: ./backend # Assure-toi que tu as un dossier backend
+      run: composer install --no-dev --optimize-autoloader
 
-      - name: Install Node Dependencies
-        run: npm ci
+      
+name: Configuration de Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18' # Tu peux ajuster la version de Node.js ici
 
-      - name: Build Assets
-        run: npm run build
+      
+name: Installation des dépendances React
+      working-directory: ./react # Assure-toi que tu as un dossier react
+      run: npm install
 
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+name: Build de l'application React
+      working-directory: ./react
+      run: npm run build
 
-      - name: Copy Environment File
-        run: cp .env.example .env
+      
+name: Déploiement vers le FTP Backend
+      uses: actions/ftp-deploy@v3
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./
+        remote-dir: ./backend # Déploiement dans le dossier backend
 
-      - name: Generate Application Key
-        run: php artisan key:generate
-
-      - name: Tests
-        run: ./vendor/bin/phpunit
+      
+name: Déploiement vers le FTP Frontend
+      uses: actions/ftp-deploy@v3
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./react/dist
+        remote-dir: ./public_html
