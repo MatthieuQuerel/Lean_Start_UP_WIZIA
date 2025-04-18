@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: ./backend
+          server-dir: ./backend/
 
       - name: Déploiement vers le FTP Frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -57,4 +57,4 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./react/dist
-          remote-dir: ./public_html
+          remote-dir: ./public_html/
