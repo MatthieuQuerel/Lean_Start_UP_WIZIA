@@ -3,8 +3,7 @@ name: Déploiement via FTP lors de la Pull Request vers Main
 on:
   pull_request:
     branches:
-      
-main
+      - main
 
 jobs:
   deploy:
