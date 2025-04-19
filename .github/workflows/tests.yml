@@ -39,14 +39,14 @@ jobs:
 
       - name: Déploiement vers le FTP Backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-
-
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: ./backend/
+          server-dir: ./backend/  
+          exclude: |
+            **/react/**
 
       - name: Déploiement vers le FTP Frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
