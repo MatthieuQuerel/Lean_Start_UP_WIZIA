@@ -12,18 +12,18 @@ const NavBar = () => {
             </NavLink>
             <ul className="navbar-links">
                 <li>
-                    <NavLink to="/" className="nav-link" activeClassName="active-link">
+                    <NavLink to="/Dashboard" className="nav-link" activeClassName="active-link">
                     Welcolm
                     </NavLink>   
                 </li>
                 <li>
-                    <NavLink to="/about" className="nav-link" activeClassName="active-link">
-                    about
+                    <NavLink to="/Dashboard/Réseaux_Sociaux" className="nav-link" activeClassName="active-link">
+                    Réseaux sociaux
                     </NavLink>   
                 </li>
                 <li>
-                    <NavLink to="/Service" className="nav-link" activeClassName="active-link">
-                    services
+                    <NavLink to="/Dashboard/Newsletters" className="nav-link" activeClassName="active-link">
+                    Newsletters
                     </NavLink>   
                 </li>
                 <li>
@@ -31,6 +31,17 @@ const NavBar = () => {
                     contact
                     </NavLink>   
                 </li>
+                 <li className="dropdown">
+                 <a href="#" className="nav-link dropbtn">
+                 <img src="/icons/anchor.png"  style={{ width: "16px", marginRight: "8px" }} />
+                       
+                     </a>
+                <div className="dropdown-content">
+            <NavLink to="/Dashboard/Abonnement" className="nav-link">Abonnement</NavLink>
+            <NavLink to="/Dashboard/Profil" className="nav-link">Profil</NavLink>
+            <NavLink to="/Dashboard/History" className="nav-link">Historique</NavLink>
+          </div>
+        </li>
             </ul>
         </nav>
 

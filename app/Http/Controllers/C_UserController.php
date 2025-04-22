@@ -2,7 +2,7 @@
 
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -21,6 +21,26 @@ class C_UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Erreur lors de la récupération de l\'utilisateur'], 500);
         }
+    }
+
+    public function sertchgetUser(Request $request) 
+    { // a voir 
+          try {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Email ou mot de passe invalide'], 401);
+        }
+
+        return response()->json($user, 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Erreur lors de la récupération de l\'utilisateur'], 500);
+    }
     }
 
     // Ajouter un utilisateur

@@ -1,0 +1,56 @@
+.Newsletters {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f8f8f8;
+}
+
+.NewslettersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.Newsletters h1 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.NewslettersHeader button {
+  padding: 10px 20px;
+  background-color: #2573cd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.NewslettersHeader button:hover {
+  background-color: #1b5ea8;
+}
+
+.NewslettersContent {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.NewslettersIA {
+  flex: 1;
+}
+
+.NewslettersBord {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .NewslettersContent {
+    flex-direction: column;
+  }
+}
+
+

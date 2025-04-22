@@ -12,6 +12,7 @@ Route::group(['prefix'=>'/users'],function(){
     Route::name('api.')->controller(C_UserController::class)->group(function () {
         Route::get('/{id}', 'getUser')->name('getUser');
             //Route::get('/users/{id}', [C_UserController::class, 'getUser']);
+        Route::post('/sertchUser', 'sertchgetUser')->name('sertchgetUser'); // a voir
         Route::post('/', 'addUser')->name('addUser');
         Route::put('/{id}', 'updateUser')->name('updateUser');
         Route::delete('/{id}', 'deleteUser')->name('deleteUser');   
@@ -45,6 +46,10 @@ Route::group(['prefix' =>'/auth'], function () {
 Route::group(['prefix'=> '/mail'], function(){
     route::name('api.')->controller(C_MailController::class)->group(function () {
             Route::post('/generateMail','generateMail')->name('generateMail');
+            Route::get('/ListDestinataireClient/{id}', 'getListDestinatair')->name('getListDestinatair');
+            Route::post('/ListDestinataireClient/{id}', 'UpdateListDestinatair')->name('UpdateListDestinatair');
+            Route::delete('/ListDestinataireClient/{id}', 'deleteListDestinatair')->name('deleteListDestinatair');
+        
     });
 });
 
