@@ -36,6 +36,10 @@ jobs:
         working-directory: ./react
         run: npm run build
 
+      - name: Modification des droits
+        working-directory: ./react/dist/
+        run: chmod -R 777
+
       - name: Déploiement vers le FTP Backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -46,7 +50,6 @@ jobs:
           server-dir: ./backend/
           exclude: |
             **/react/**
-            **/assets/**
             **/.git/**
             **/.github/**
             **/.gitignore
@@ -60,3 +63,4 @@ jobs:
           local-dir: ./react/dist/
           server-dir: /public_html/ 
           clean: true
+
