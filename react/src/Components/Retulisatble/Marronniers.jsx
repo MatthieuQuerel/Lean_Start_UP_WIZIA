@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // Import des styles
 import 'react-date-range/dist/theme/default.css';
-//make
 
-const Test = () => {
+
+const Marronniers = ({ onDateChange }) => {
     const [state, setState] = useState([
         {
             startDate: new Date(),
@@ -13,9 +13,12 @@ const Test = () => {
         }
     ]);
     const handleSelect = (ranges) => {
-        //console.log(ranges);
-        setState([ranges.selection]);
-        console.log( ranges.selection);
+       const selection = ranges.selection;
+    setState([selection]);
+    onDateChange({
+      startDate: selection.startDate,
+      endDate: selection.endDate,
+    });
         
     };
     return (
@@ -39,4 +42,4 @@ const Test = () => {
     );
 };
 
-export default Test;
+export default Marronniers;

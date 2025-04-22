@@ -3,9 +3,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 12.68rem;
+   
     background: linear-gradient(to bottom right, #2573cd, #740aca);
     font-family: Arial, sans-serif;
+    min-height: 100vh;
 }
 
 /* Style pour le cadre de connexion */
@@ -18,10 +19,7 @@
     width: 100%;
     max-width: 400px;
 }
-.errorText {
-    color: 'red',
-   
-  }
+
 
 /* Titre de connexion */
 .CadreConnexion h1 {
