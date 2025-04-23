@@ -9,7 +9,7 @@ const Test = () => {
 
 //   useEffect(() => {
     const fetchReviews = async () => {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=YOUR_PLACE_ID&key=YOUR_API_KEY`);
+      const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=wizia-45617&key=AIzaSyCESK0F4bT8ShujpjV9t1IE1xOBRyoRer8`);
       const data = await response.json();
       setReviews(data.result.reviews);
     };

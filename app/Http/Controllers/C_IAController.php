@@ -18,7 +18,7 @@ class C_IAController extends Controller
         $this->apiUrl ="http://localhost:11434/api/generate";
         $this->model = "llama3.2";
         $this->stream =false;
-        $this->keyApi=env('KEY_API_GEMINI'); // Pour GEMINI
+        $this->keyApi=env('AIzaSyBquuVdy6a4vvu4mUfuuyEP0CoI8P6SyPY'); // Pour GEMINI AIzaSyBquuVdy6a4vvu4mUfuuyEP0CoI8P6SyPY
         $this->geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $this->keyApi;
     }
     public function generatprompt(Request $promptClient){
@@ -43,13 +43,11 @@ class C_IAController extends Controller
         $decodeJson = json_decode($response, true);
         return $decodeJson['response'] ?? "Erreur : reponse introuvable"; 
     }
-    public function generatpromptgemini( Request $request){ 
-
-       $request->validate([
-        'prompt' => 'required|string',
-    ]);
-
-    $this->prompt = $request->prompt;
+    public function generatpromptgemini( Request $promptClient){ //Request
+        $promptClient->validate([
+            'prompt' => 'required',
+        ]);
+            $this ->prompt = $promptClient ->prompt;
             $data = json_encode([
                 "contents" => [
                     [
@@ -68,10 +66,9 @@ class C_IAController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $reponse = curl_exec($ch);
         curl_close($ch);
-        dd($reponse);
-        dd($this->prompt);
+
         $decodeJson = json_decode($reponse,true);
-        return $decodeJson['candidates'][0]['content']['parts'][0]['text'] ?? "Erreur de la génération du prompte gemini ";
+        return $decodeJson['candidates'][0]['content']['parts'][0]['text'] ?? "Erreur de la génération du prompte gemini";
 
             
     }
