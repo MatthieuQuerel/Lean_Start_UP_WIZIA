@@ -36,6 +36,6 @@ class C_NetwoorkController extends Controller
 
     $response = Http::post($url, $data);
 
-    dd($response);
+    return response()->json($response);
   }
 }
