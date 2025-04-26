@@ -19,7 +19,7 @@ Route::group(['prefix' => '/users'], function () {
     Route::delete('/{id}', 'deleteUser')->name('deleteUser');
   });
 });
-Route::groupe(['prefix' => "/post"], function () {
+Route::group(['prefix' => "/post"], function () {
   Route::name('post.')->controller(C_NetwoorkController::class)->group(function () {
     Route::post('/', 'createAndPublishPost')->name('creatAndPublish');
   });
