@@ -19,11 +19,11 @@ const CardIA = ({ prompt , Titre ,onPromptGenerated }) => {
         }),
       };
 
-      const reponse = await fetch('https://api.wizia.dimitribeziau.fr/ia/generateIA', Option); 
+      const reponse = await fetch('http://localhost/ia/generateIA', Option); 
 
       if (reponse.ok) {
         const reponseData = await reponse.json();
-       
+        
                 setPrompt(reponseData.text); 
           onPromptGenerated(reponseData.text);
           
