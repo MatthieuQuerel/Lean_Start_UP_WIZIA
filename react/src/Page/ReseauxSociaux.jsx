@@ -3,6 +3,8 @@ import Marronniers from "../Components/Retulisatble/Marronniers";
 import CardIA from "../Components/Retulisatble/CardIA";
 import { useState } from 'react';
 import "./Style/ReseauxSociaux.css"; 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 const ReseauxSociaux = () => {
 
@@ -28,7 +30,28 @@ const ReseauxSociaux = () => {
     // Logique à ajouter
     };
     
+const publishPost = async () => {
+    const response = await fetch("https://api.wizia.dimitribeziau.fr/post", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ post: generatedPrompt })
+    })
 
+    const json = response.json();
+
+    if (response.status === 200) {
+      toast('Post correctement publié', {
+        type: "success"
+      })
+    } else {
+      toast('Erreur lors de la publication', {
+        type: "error"
+      })
+    }
+  }
 
     const ValiderReseauxSociaux = async () => {
         
@@ -70,8 +93,9 @@ return(
                 <Marronniers onDateChange={setSelectedDates} />
             </div>
           </div>
-          <div> 
-              <button onClick={ValiderReseauxSociaux}>Valider le post</button>
+    <div> 
+      {generatedPrompt !== "" && <button onClick={publishPost}>Publier maintenant</button>}
+      <button onClick={ValiderReseauxSociaux}>Valider le post</button> 
           </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
    </div> 

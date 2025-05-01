@@ -40,34 +40,34 @@ const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
     }
   };
 
-  const publishPost = async () => {
-    const response = await fetch("https://api.wizia.dimitribeziau.fr/post", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ post: Prompt })
-    })
+  // const publishPost = async () => {
+  //   const response = await fetch("https://api.wizia.dimitribeziau.fr/post", {
+  //     method: "POST",
+  //     headers: {
+  //       "Accept": "application/json",
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify({ post: Prompt })
+  //   })
 
-    const json = response.json();
+  //   const json = response.json();
 
-    if (response.status === 200) {
-      toast('Post correctement publié', {
-        type: "success"
-      })
-    } else {
-      toast('Erreur lors de la publication', {
-        type: "error"
-      })
-    }
-  }
+  //   if (response.status === 200) {
+  //     toast('Post correctement publié', {
+  //       type: "success"
+  //     })
+  //   } else {
+  //     toast('Erreur lors de la publication', {
+  //       type: "error"
+  //     })
+  //   }
+  // }
 
   return (
     <div className="CardIA">
       <h2>{Titre}</h2>
       <button onClick={Genererprompt}>Générer</button>
-      {Prompt !== "" && <button onClick={publishPost}>Publier maintenant</button>}
+      {/* {Prompt !== "" && <button onClick={publishPost}>Publier maintenant</button>} */}
       <p>{Prompt}</p>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>

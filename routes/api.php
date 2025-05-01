@@ -51,9 +51,10 @@ Route::group(['prefix' => '/auth'], function () {
 Route::group(['prefix' => '/mail'], function () {
   route::name('api.')->controller(C_MailController::class)->group(function () {
     Route::post('/generateMail', 'generateMail')->name('generateMail');
-    Route::get('/ListDestinataireClient/{id}', 'getListDestinatair')->name('getListDestinatair');
-    Route::post('/ListDestinataireClient/{id}', 'UpdateListDestinatair')->name('UpdateListDestinatair');
-    Route::delete('/ListDestinataireClient/{id}', 'deleteListDestinatair')->name('deleteListDestinatair');
+    Route::get('/ListDestinataireClient/{id}', 'getListDestinataire')->name('getListDestinataire');
+    Route::post('/AddDestinataireClient/{id}', 'AddListDestinataire')->name('AddListDestinataire');
+    Route::put('/UpdateDestinataireClient/{id}', 'UpdateListDestinataire')->name('UpdateListDestinataire');
+    Route::delete('/ListDestinataireClient/{id}', 'deleteListDestinataire')->name('deleteListDestinataire');
   });
 });
 
