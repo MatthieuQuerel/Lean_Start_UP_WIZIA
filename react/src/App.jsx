@@ -4,13 +4,14 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { ToastContainer } from 'react-toastify';
 
-import Root from "./Rooter/Root"
+import { RouterProvider } from 'react-router-dom';
+import router from './Rooter/Router';
 function App() {
   return (
     <>
       <ToastContainer
         Position="top-right" />
-      <Root />
+      <RouterProvider router={router} />
     </>
   )
 }
