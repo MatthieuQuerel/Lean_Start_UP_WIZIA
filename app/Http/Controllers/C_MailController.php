@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use App\Models\clients;
+use App\Models\Mailings;
+use App\Models\ClientsMailings;
 use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 
@@ -89,6 +91,59 @@ public function generateMail(Request $request)
         $this->mail->addAttachment($filePath, $fileName);
     }
 
+
+
+public function AddMail(Request $request, $idUser)
+{
+    try {
+        if (!is_numeric($idUser)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID invalide'
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'to' => 'required|array',
+            'to.*' => 'email',
+            'toListId' => 'required|array',
+            'toListId.*' => 'integer',
+            'subject' => 'required|string',
+            'body' => 'required|string',
+            'altBody' => 'nullable|string',
+            'fromName' => 'nullable|string',
+            'fromEmail' => 'nullable|email',
+        ]);
+
+        $mail = new Mailings();
+        $mail->idUser  = $idUser; 
+        $mail->subject = $validated['subject'];
+        $mail->body = $validated['body'];
+        $mail->altBody = $validated['altBody'] ?? null;
+        $mail->fromName = $validated['fromName'] ?? null;
+        $mail->fromEmail = $validated['fromEmail'] ?? null;
+        $mail->save();
+
+        foreach ($validated['toListId'] as $destId) {
+             $ClientsMailings = new ClientsMailings();
+             $ClientsMailings->idMailing = $mail->id;
+             $ClientsMailings->idClient = $destId;
+             $ClientsMailings->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mail ajouté avec succès',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de l\'ajout du mail',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
    public function getListDestinataire($idUser)
 {
     try {
@@ -114,6 +169,8 @@ public function generateMail(Request $request)
         ], 500);
     }
 }
+
+
    public function addListDestinataire(Request $request, $idUser)
 {
     try {

@@ -25,6 +25,7 @@ const Newsletters = () => {
     fromEmail: "wiz.ia@dimitribeziau.fr",
     fromName: "WIZIA@gmail.com",
     to: [],
+    toListId: [],
     body: '',
     subject: "Ma newsletter",
     altBody: "Texte brut de la newsletter",
@@ -55,7 +56,7 @@ const Newsletters = () => {
 
   const ValiderNewsletters = async () => {
     try {
-      if (generatedPrompt !== "" && selectedDates.startDate !== null) {
+      if (generatedPrompt !== "" && selectedDates.startDate !== null && Mail.to.length > 0) {
         
         const today = new Date();
         const formattedToday = formatDateAmerican(today);
@@ -79,9 +80,10 @@ const Newsletters = () => {
             }),
           };
       
-           const response = await fetch('http://localhost:8000/mail/generateMail', options);
+           const response = await fetch('https://api.wizia.dimitribeziau.fr/mail/generateMail', options);
          // const response = await fetch('https://api.wizia.dimitribeziau.fr/mail/generateMail', options);
           const data = await response.json();
+          AddNewsletters();
 
           if (response.ok) {
             toast('Mail envoyé ', {
@@ -110,6 +112,33 @@ const Newsletters = () => {
             })
     }
   };
+  const AddNewsletters = async () => {
+    const options = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            
+            body: JSON.stringify({
+              to: Mail.to,
+              toListId: Mail.toListId,
+              subject: Mail.subject,
+              body: generatedPrompt,
+              altBody: Mail.altBody,
+              fromName: Mail.fromName,
+              fromEmail: Mail.fromEmail,
+            }),
+          };
+      
+    const response = await fetch('https://api.wizia.dimitribeziau.fr/mail/AddMail/1', options);
+    const data = await response.json();
+    if (data) {
+      return true
+    } else {
+      return false
+    }
+     
+  }
 
   return (
     <div className="Newsletters">

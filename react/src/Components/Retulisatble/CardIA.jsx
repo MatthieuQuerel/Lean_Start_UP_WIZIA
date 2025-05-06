@@ -5,9 +5,11 @@ import { toast } from 'react-toastify';
 const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
   const [Prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
-
-  const Genererprompt = async () => {
+  
+  const GenererMailType = async () => {
     try {
+      // setPrompt(prompt); // test
+
       const Option = {
         method: 'POST',
         headers: {
@@ -22,8 +24,10 @@ const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
 
       if (reponse.ok) {
         const reponseData = await reponse.json();
+
         setPrompt(reponseData.text);
         onPromptGenerated(reponseData.text);
+
       } else {
         throw new Error("Réponse non OK");
       }
@@ -33,22 +37,19 @@ const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
     }
   };
 
-  
-
+ 
   return (
     <div className="CardIA">
       <h2>{Titre}</h2>
-
-      {Prompt !== "" && 
-        <textarea 
-          style={{ width: "100%", height: "150px", borderRadius: "6px", backgroundColor: "#ffffff" }} 
-          onChange={(event) => { setPrompt(event.target.value) }}
-        >
-          {Prompt}
-        </textarea>
-      }
-      <button onClick={Genererprompt}>Générer</button>
-
+       {Prompt !== "" && (
+  <textarea
+    style={{ width: "100%", height: "150px", borderRadius: "6px", backgroundColor: "#ffffff" }}
+    value={Prompt}
+          onChange={(event) => { setPrompt(event.target.value); onPromptGenerated(event.target.value) }}
+  />
+      )}
+      <button onClick={GenererMailType}>Générer</button>
+      
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );

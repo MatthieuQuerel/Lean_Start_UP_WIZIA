@@ -12,7 +12,7 @@ const ListeDestinataireNewsletters = () => {
   useEffect(() => {
     const fetchDestinataires = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/mail/ListDestinataireClient/${idUser}`);
+        const response = await fetch(`https://api.wizia.dimitribeziau.fr/mail/ListDestinataireClient/${idUser}`);
         const data = await response.json();
         if (data.success) {
           setDestinataires(data.data);
@@ -33,7 +33,7 @@ const ListeDestinataireNewsletters = () => {
     if (!window.confirm("Confirmer la suppression ?")) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/mail/ListDestinataireClient/${id}`, {
+      const response = await fetch(`https://api.wizia.dimitribeziau.fr/mail/ListDestinataireClient/${id}`, {
         method: "DELETE",
       });
       const data = await response.json();

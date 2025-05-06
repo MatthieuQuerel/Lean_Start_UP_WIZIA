@@ -2,12 +2,11 @@ import NavBar from "../Components/Retulisatble/NavBar";
 import Marronniers from "../Components/Retulisatble/Marronniers";
 import CardIA from "../Components/Retulisatble/CardIA";
 import { useState } from 'react';
-import "./Style/ReseauxSociaux.css"; 
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import "./Style/ReseauxSociaux.css";
 import { useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 const ReseauxSociaux = () => {
+
   const [error, setError] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [selectedDates, setSelectedDates] = useState({ startDate: null });
@@ -15,6 +14,8 @@ const ReseauxSociaux = () => {
   const [user, setUser] = useState({
     userAbonnement: '',
     userTravail: '', // pour prompte
+
+
   });
 
   const [Post, setPost] = useState({
@@ -24,37 +25,19 @@ const ReseauxSociaux = () => {
     Date: '',
     Batch: false,
   });
-
   const AbonnementUser = async () => {
     // Logique à ajouter
   };
 
-  const publishPost = async () => {
-    const response = await fetch("https://api.wizia.dimitribeziau.fr/post", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ post: generatedPrompt })
-    });
 
-    const json = await response.json();
-
-    if (response.status === 200) {
-      toast('Post correctement publié', {
-        type: "success"
-      });
-    } else {
-      toast('Erreur lors de la publication', {
-        type: "error"
-      });
-    }
-  };
 
   const ValiderReseauxSociaux = async () => {
+ 
+
+
     if (generatedPrompt !== "" && selectedDates.startDate !== null) {
-      const today = new Date();
+     
+      const today = new Date(); // Manquait ici
       const formatDate = (date) => {
         const years = date.getFullYear();
         const months = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -66,12 +49,13 @@ const ReseauxSociaux = () => {
       const formattedSelect = formatDate(new Date(selectedDates.startDate));
 
       if (new Date(formattedSelect) >= new Date(formattedToday)) {
+        console.log('test3');
         const post = {
           network: 'Facebook',
           post: generatedPrompt,
           date: formattedSelect,
           now: false
-        };
+        }
 
         const response = await fetch('https://api.wizia.dimitribeziau.fr/post', {
           method: 'POST',
@@ -79,24 +63,25 @@ const ReseauxSociaux = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(post),
-        });
-
+        })
         if (response.status === 200) {
           const data = await response.json();
         } else {
           toast("Erreur lors de la programmation de l'évènement", {
             type: "error"
-          });
+          })
         }
+
       } else {
         toast("Vous ne pouvez pas programmer un évènement pour une date passée", {
           type: "error"
-        });
+        })
       }
+
     } else {
       toast("Veuillez générer un prompt et sélectionner une date", {
         type: "warning"
-      });
+      })
     }
   };
 
@@ -111,6 +96,7 @@ const ReseauxSociaux = () => {
             Titre="Contenu du post sur les Réseaux Sociaux"
             onPromptGenerated={setGeneratedPrompt}
           />
+
         </div>
 
         <div className="ReseauxSociauxBord">
@@ -122,7 +108,6 @@ const ReseauxSociaux = () => {
       </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
-  );
+  )
 };
-
 export default ReseauxSociaux;

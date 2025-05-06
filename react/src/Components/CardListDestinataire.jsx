@@ -47,11 +47,13 @@ const CardListDestinataire = ({ setMail }) => {
                       setMail((prev) => ({
                         ...prev,
                         to: [...prev.to, dest.mail],
+                         toListId: [...(prev.toListId || []), dest.id],
                       }));
                     } else {
                       setMail((prev) => ({
                         ...prev,
                         to: prev.to.filter((m) => m !== dest.mail),
+                        toListId: (prev.toListId || []).filter((id) => id !== dest.id),
                       }));
                     }
                   }}

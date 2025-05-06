@@ -30,7 +30,7 @@ const FormulaireDestinataire = () => {
 
       if (destinataire?.id) {
         // Mise à jour
-        response = await fetch(`http://localhost:8000/mail/UpdateDestinataireClient/${idUser}`, {
+        response = await fetch(`https://api.wizia.dimitribeziau.fr/mail/UpdateDestinataireClient/${idUser}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ const FormulaireDestinataire = () => {
         });
       } else {
         // Ajout
-        response = await fetch(`http://localhost:8000/mail/AddDestinataireClient/${idUser}`, {
+        response = await fetch(`https://api.wizia.dimitribeziau.fr/mail/AddDestinataireClient/${idUser}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
