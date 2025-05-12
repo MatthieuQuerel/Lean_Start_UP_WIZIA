@@ -41,10 +41,9 @@ Route::group(['prefix' => '/stripe'], function () {
   Route::name('stripe.')->controller(C_IAController::class)->group(function () {
     // Route::post('/generateIA', 'generatprompt')->name('generatprompt');
     Route::post('/create-payment-intent', [C_StripeController::class, 'createPaymentIntent']);
-<<<<<<< HEAD
+
    Route::get('/abonnement/{id}', [C_StripeController::class, 'getAbonnement']);
-=======
->>>>>>> 0e966f015370f600d497831ddfa54664320ec6be
+
   });
 });
 
