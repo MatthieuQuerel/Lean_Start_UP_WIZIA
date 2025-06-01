@@ -105,7 +105,7 @@ const Newsletters = () => {
 
   const AddNewsletters = async () => {
     try {
-      const { data } = await axiosClient.post(`/mail/AddMail/${user.id}`, {
+      const { data } = await axiosClient.post(`mail/AddMail/${user.id}`, {
         to: Mail.to,
         toListId: Mail.toListId,
         subject: Mail.subject,

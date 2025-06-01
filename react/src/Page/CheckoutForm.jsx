@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 import { useStateContext } from "../Context/ContextProvider";
 import "./Style/StripeCard.css";
 import axiosClient from "../axios-client";
-const CheckoutForm = ({ price ,nom}) => {
+
+const CheckoutForm = ({ price, nom }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { user } = useStateContext();
-  
+
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [amount, setAmount] = useState(null); // Montant en centimes
@@ -35,11 +36,13 @@ const CheckoutForm = ({ price ,nom}) => {
 
 
     try {
-      const response = await axiosClient.post(`stripe/create-payment-intent`, {
-        amount, email ,nom ,IdUser
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}stripe/create-payment-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount, email }),
       });
-
-      const data = await response.json();
 
       if (data.error) {
         toast.error(`Erreur backend : ${data.error}`);

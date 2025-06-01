@@ -20,7 +20,7 @@ const MailPassword = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post('/auth/password/forget', formData);
+      await axiosClient.post('auth/password/forget', formData);
       setMessage("Le mot de passe a été mis à jour avec succès.");
     } catch (error) {
       console.error("Erreur :", error);

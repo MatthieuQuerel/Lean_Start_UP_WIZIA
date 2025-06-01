@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axiosClient from "../axios-client";
 
 //AIzaSyCESK0F4bT8ShujpjV9t1IE1xOBRyoRer8   apiKey
 
@@ -10,8 +11,7 @@ const Test = () => {
     const apiKey = 'AIzaSyCESK0F4bT8ShujpjV9t1IE1xOBRyoRer8';  // Remplace par ta clé API Google
 
     try {
-      const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=rating&key=${apiKey}`);
-      const data = await response.json();
+      const { data } = await axiosClient.get(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=rating&key=${apiKey}`);
 
       if (data.result && data.result.rating) {
         setRating(data.result.rating);  // Stocke la note récupérée

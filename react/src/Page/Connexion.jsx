@@ -39,7 +39,7 @@ const Connexion = () => {
         setError('Adresse e-mail invalide.');
       } else {
         setError('');
-        const { data } = await axiosClient.post('/auth/login', {
+        const { data } = await axiosClient.post('auth/login', {
           email: Email,
           password: PassWord,
         });

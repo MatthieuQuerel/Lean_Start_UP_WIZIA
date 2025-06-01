@@ -1,6 +1,7 @@
 import { useState } from "react";
 import './Style/CardIA.css';
 import { toast } from 'react-toastify';
+import axiosClient from "../../axios-client";
 
 const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
   const [Prompt, setPrompt] = useState("");
@@ -8,18 +9,13 @@ const CardIA = ({ prompt, Titre, onPromptGenerated }) => {
 
   const GenererMailType = async () => {
     try {
-      // setPrompt(prompt); // test
+      const { data } = await axiosClient.post('ia/generateIA', {
+        prompt: prompt,
+      });
 
-      
-
-      const reponse = await axiosClient.post(`ia/generateIA`, {prompt: prompt});
-
-      if (reponse.ok) {
-        const reponseData = await reponse.json();
-
-        setPrompt(reponseData.text);
-        onPromptGenerated(reponseData.text);
-
+      if (data) {
+        setPrompt(data.text);
+        onPromptGenerated(data.text);
       } else {
         throw new Error("Réponse non OK");
       }

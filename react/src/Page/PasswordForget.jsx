@@ -12,7 +12,7 @@ const PasswordForget = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post('/auth/password/forget', { email });
+      await axiosClient.post('auth/password/forget', { email });
       setMessage("Un email de réinitialisation a été envoyé.");
     } catch (error) {
       console.error("Erreur :", error);
