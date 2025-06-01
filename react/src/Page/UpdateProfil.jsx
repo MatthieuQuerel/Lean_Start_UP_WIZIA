@@ -17,6 +17,7 @@ const UpdateProfil = () => {
 
   useEffect(() => {
     if (!user.id) return;
+    console.log(user.id)
     const fetchUser = async () => {
       try {
         const { data } = await axiosClient.get(`users/${user.id}`);

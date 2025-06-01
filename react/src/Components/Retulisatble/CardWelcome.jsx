@@ -10,7 +10,8 @@ const CardWelcome = ({ nom, description,prix, icon, buttonText, destination,gray
   const ClickCard = () => {
     try {
       navigate(`/Dashboard/${destination}`, {
-      state: { prix } 
+        state: { prix ,nom } 
+        
     });
     } catch (e) {
       console.error('Erreur lors de la navigation :', e);

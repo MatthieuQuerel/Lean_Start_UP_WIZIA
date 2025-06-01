@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
+import { useStateContext } from "../Context/ContextProvider";
 import "./Style/StripeCard.css";
 import axiosClient from "../axios-client";
 
-const CheckoutForm = ({ price }) => {
+const CheckoutForm = ({ price, nom }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { user } = useStateContext();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -25,13 +27,21 @@ const CheckoutForm = ({ price }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements || !amount) return;
-
+    // if (user.id === null) {
+    //   toast.error("Veuillez vous connecter pour effectuer un paiement.");
+    //   return;
+    // }
+    const IdUser = user.id;
     setProcessing(true);
 
+
     try {
-      const { data } = await axiosClient.post('stripe/create-payment-intent', {
-        amount,
-        email
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}stripe/create-payment-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount, email }),
       });
 
       if (data.error) {
