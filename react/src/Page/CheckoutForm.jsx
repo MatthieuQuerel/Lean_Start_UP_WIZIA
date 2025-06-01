@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
+import { useStateContext } from "../Context/ContextProvider";
 import "./Style/StripeCard.css";
+import { use } from "react";
 
-const CheckoutForm = ({ price }) => {
+const CheckoutForm = ({ price ,nom}) => {
   const stripe = useStripe();
   const elements = useElements();
-
+  const { user } = useStateContext();
+  
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [amount, setAmount] = useState(null); // Montant en centimes
@@ -24,8 +27,13 @@ const CheckoutForm = ({ price }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements || !amount) return;
-
+    // if (user.id === null) {
+    //   toast.error("Veuillez vous connecter pour effectuer un paiement.");
+    //   return;
+    // }
+    const IdUser = user.id;
     setProcessing(true);
+
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}stripe/create-payment-intent`, {
@@ -33,7 +41,7 @@ const CheckoutForm = ({ price }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount, email }),
+        body: JSON.stringify({ amount, email ,nom ,IdUser}),
       });
 
       const data = await response.json();

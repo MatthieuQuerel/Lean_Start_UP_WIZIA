@@ -17,6 +17,7 @@ const UpdateProfil = () => {
 
   useEffect(() => {
     if (!user.id) return;
+    console.log(user.id)
     const fetchUser = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}users/${user.id}`);

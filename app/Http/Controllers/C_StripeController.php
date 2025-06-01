@@ -8,13 +8,16 @@ use Stripe\PaymentIntent;
 use App\Models\User;
 use App\Models\Abonnements;
 
+
 class C_StripeController extends Controller
 {
     public function createPaymentIntent(Request $request)
     {
         $validated = $request->validate([
             'amount' => 'required|numeric',
+            'IdUser' => 'required|numeric',
             'email' => 'required|email',
+            'nom' => 'required|string|max:255',
         ]);
 
         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
@@ -28,6 +31,35 @@ class C_StripeController extends Controller
                     'integration_check' => 'accept_a_payment',
                 ],
             ]);
+            // Récupérer l'utilisateur
+        $user = User::find($validated['IdUser']);
+        if (!$user) {
+            return response()->json(['error' => 'Utilisateur introuvable.'], 404);
+        }
+        $abonnement = Abonnements::find($user->idAbonnement);
+        if (!$abonnement) {
+            return response()->json(['error' => 'Abonnement introuvable.'], 404);
+        }
+        // Créer un abonnement avec les bons flags
+        $abonnement->isFree = 0;
+        $abonnement->isPremium = 0;
+        $abonnement->isProfessionnel = 0;
+
+        switch ($validated['nom']) {
+            case 'Free':
+                $abonnement->isFree = true;
+                break;
+            case 'Premium':
+                $abonnement->isPremium = true;
+                break;
+            case 'Professionnel':
+                $abonnement->isProfessionnel = true;
+                break;
+            default:
+                return response()->json(['error' => 'Abonnement non valide'], 400);
+        }
+
+        $abonnement->save();
 
             return response()->json(['clientSecret' => $intent->client_secret]);
         } catch (\Exception $e) {

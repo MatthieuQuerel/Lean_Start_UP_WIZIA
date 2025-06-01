@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
+use App\Models\Abonnements;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -60,7 +61,7 @@ class C_UserController extends Controller
       $user->name = $request->name;
       $user->email = $request->email;
       $user->password = password_hash($request->password, PASSWORD_DEFAULT);
-      $user->idAbonnement ='1';
+      $user->idAbonnement ='1'; 
       $user->save();
 
       return response()->json($user, 200);
@@ -70,6 +71,36 @@ class C_UserController extends Controller
         'error' => $e->getMessage()
     ], 500);
     }
+    //   try {
+    //     $request->validate([
+    //         'firstName' => 'required',
+    //         'name' => 'required',
+    //         'email' => 'required|email|unique:users',
+    //         'password' => 'required',
+    //     ]);
+
+
+    //     // $abonnement = Abonnements::firstOr Create([
+    //     //     'isFree' => true,
+    //     //     'isPremium' => false,
+    //     //     'isProfessionnel' => false,
+    //     // ]);
+
+    //     $user = new User();
+    //     $user->firstName = $request->firstName;
+    //     $user->name = $request->name;
+    //     $user->email = $request->email;
+    //     $user->password = Hash::make($request->password);
+    //     //$user->abonnement_id = $abonnement->id;
+    //     $user->save();
+
+    //     return response()->json($user, 200);
+    // } catch (\Exception $e) {
+    //     return response()->json([
+    //         'message' => 'Erreur lors de l\'ajout de l\'utilisateur',
+    //         'error' => $e->getMessage()
+    //     ], 500);
+    // }
   }
 
   public function login(Request $request)
