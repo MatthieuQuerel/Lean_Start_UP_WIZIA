@@ -8,8 +8,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../Context/ContextProvider";
-
-
+import axiosClient from "../axios-client";
 
 const Newsletters = () => {
   const [error, setError] = useState("");
@@ -61,69 +60,52 @@ const Newsletters = () => {
   const ValiderNewsletters = async () => {
     try {
       if (generatedPrompt !== "" && selectedDates.startDate !== null && Mail.to.length > 0) {
-
         const today = new Date();
         const formattedToday = formatDateAmerican(today);
         const formattedSelectedDate = formatDateAmerican(new Date(selectedDates.startDate));
 
         if (formattedSelectedDate === formattedToday) {
+          const response = await axiosClient.post('/mail/generateMail', {
+            to: Mail.to,
+            subject: Mail.subject,
+            body: generatedPrompt,
+            altBody: Mail.altBody,
+            fromName: Mail.fromName,
+            fromEmail: Mail.fromEmail,
+          });
 
-          const options = {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-            },
-
-            body: JSON.stringify({
-              to: Mail.to,
-              subject: Mail.subject,
-              body: generatedPrompt,
-              altBody: Mail.altBody,
-              fromName: Mail.fromName,
-              fromEmail: Mail.fromEmail,
-            }),
-          };
-
-          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/generateMail`, options);
-          // const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/generateMail`, options);
-          const data = await response.json();
-          AddNewsletters();
-
-          if (response.ok) {
+          if (response.data.success) {
+            await AddNewsletters();
             toast('Mail envoyé ', {
               type: "success"
-            })
+            });
           } else {
-            toast('Erreur lors de l\’envoi', {
+            toast('Erreur lors de l\'envoi', {
               type: "error"
-            })
+            });
           }
         } else {
           toast('La date sélectionnée n est pas aujourd hui !', {
             type: "error"
-          })
+          });
         }
       } else {
         toast('Veuillez générer du contenu et choisir une date !', {
           type: "error"
-        })
+        });
       }
     } catch (e) {
       console.error("Erreur réseau :", e);
       setError("Erreur réseau, impossible d'envoyer pour le moment.");
       toast('Erreur réseau, impossible d envoyer pour le moment.', {
         type: "error"
-      })
+      });
     }
   };
-  const AddNewsletters = async () => {
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
 
-      body: JSON.stringify({
+  const AddNewsletters = async () => {
+    try {
+      const { data } = await axiosClient.post(`/mail/AddMail/${user.id}`, {
         to: Mail.to,
         toListId: Mail.toListId,
         subject: Mail.subject,
@@ -131,18 +113,13 @@ const Newsletters = () => {
         altBody: Mail.altBody,
         fromName: Mail.fromName,
         fromEmail: Mail.fromEmail,
-      }),
-    };
-
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/AddMail/${user.id}`, options);
-    const data = await response.json();
-    if (data) {
-      return true
-    } else {
-      return false
+      });
+      return data.success;
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la newsletter :", error);
+      return false;
     }
-
-  }
+  };
 
   return (
     <div className="Newsletters">
@@ -166,14 +143,11 @@ const Newsletters = () => {
         <div className="NewslettersListDestinataire">
           <CardListDestinataire setMail={setMail} />
         </div>
-
       </div>
       <div>
-
         {generatedPrompt !== "" && selectedDates.startDate !== null && (
           <button onClick={ValiderNewsletters}>Valider la Newsletters</button>
         )}
-
       </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
