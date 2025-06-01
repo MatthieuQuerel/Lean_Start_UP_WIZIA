@@ -58,49 +58,49 @@ const Newsletters = () => {
   };
 
   const ValiderNewsletters = async () => {
-    try {
-      if (generatedPrompt !== "" && selectedDates.startDate !== null && Mail.to.length > 0) {
-        const today = new Date();
-        const formattedToday = formatDateAmerican(today);
-        const formattedSelectedDate = formatDateAmerican(new Date(selectedDates.startDate));
+    // try {
+    if (generatedPrompt !== "" && selectedDates.startDate !== null && Mail.to.length > 0) {
+      const today = new Date();
+      const formattedToday = formatDateAmerican(today);
+      const formattedSelectedDate = formatDateAmerican(new Date(selectedDates.startDate));
 
-        if (formattedSelectedDate === formattedToday) {
-          const response = await axiosClient.post('mail/generateMail', {
-            to: Mail.to,
-            subject: Mail.subject,
-            body: generatedPrompt,
-            altBody: Mail.altBody,
-            fromName: Mail.fromName,
-            fromEmail: Mail.fromEmail,
+      if (formattedSelectedDate === formattedToday) {
+        const response = await axiosClient.post('mail/generateMail', {
+          to: Mail.to,
+          subject: Mail.subject,
+          body: generatedPrompt,
+          altBody: Mail.altBody,
+          fromName: Mail.fromName,
+          fromEmail: Mail.fromEmail,
+        });
+
+        if (response.data.success) {
+          await AddNewsletters();
+          toast('Mail envoyé ', {
+            type: "success"
           });
-
-          if (response.data.success) {
-            await AddNewsletters();
-            toast('Mail envoyé ', {
-              type: "success"
-            });
-          } else {
-            toast('Erreur lors de l\'envoi', {
-              type: "error"
-            });
-          }
         } else {
-          toast('La date sélectionnée n est pas aujourd hui !', {
+          toast('Erreur lors de l\'envoi', {
             type: "error"
           });
         }
       } else {
-        toast('Veuillez générer du contenu et choisir une date !', {
+        toast('La date sélectionnée n est pas aujourd hui !', {
           type: "error"
         });
       }
-    } catch (e) {
-      console.error("Erreur réseau :", e);
-      setError("Erreur réseau, impossible d'envoyer pour le moment.");
-      toast('Erreur réseau, impossible d envoyer pour le moment.', {
+    } else {
+      toast('Veuillez générer du contenu et choisir une date !', {
         type: "error"
       });
     }
+    // } catch (e) {
+    //   console.error("Erreur réseau :", e);
+    //   setError("Erreur réseau, impossible d'envoyer pour le moment.");
+    //   toast('Erreur réseau, impossible d envoyer pour le moment.', {
+    //     type: "error"
+    //   });
+    // }
   };
 
   const AddNewsletters = async () => {
