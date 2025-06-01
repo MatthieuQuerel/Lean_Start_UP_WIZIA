@@ -26,20 +26,20 @@ const FormulaireDestinataire = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      if (destinataire?.id) {
-        // Mise à jour
-        await axiosClient.put(`mail/UpdateDestinataireClient/${user.id}`, formData);
-      } else {
-        // Ajout
-        await axiosClient.post(`mail/AddDestinataireClient/${user.id}`, formData);
-      }
-      toast.success(destinataire?.id ? "Modification réussie" : "Ajout réussi");
-      navigate("/Dashboard/Newsletters/ListeDestinataireNewsletters");
-    } catch (error) {
-      console.error("Erreur requête :", error);
-      toast.error("Une erreur est survenue.");
+    // try {
+    if (destinataire?.id) {
+      // Mise à jour
+      await axiosClient.put(`mail/UpdateDestinataireClient/${user.id}`, formData);
+    } else {
+      // Ajout
+      await axiosClient.post(`mail/AddDestinataireClient/${user.id}`, formData);
     }
+    toast.success(destinataire?.id ? "Modification réussie" : "Ajout réussi");
+    navigate("/Dashboard/Newsletters/ListeDestinataireNewsletters");
+    // } catch (error) {
+    //   console.error("Erreur requête :", error);
+    //   toast.error("Une erreur est survenue.");
+    // }
   };
 
   return (
