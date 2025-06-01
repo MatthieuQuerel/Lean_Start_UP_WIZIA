@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import "./Style/CreateCompte.css";
 import { Navigate, useNavigate } from "react-router-dom";
+import axiosClient from "../axios-client";
 
 const CreateCompte = () => {
   const [error, setError] = useState('');
@@ -25,23 +25,8 @@ const CreateCompte = () => {
     e.preventDefault();
 
     try {
-      
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}auth/register`, {
-
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        window.location.href = "/";
-      } else {
-        setError(data.message || "Erreur lors de la création du compte");
-      }
-
+      await axiosClient.post('/auth/register', formData);
+      window.location.href = "/";
     } catch (error) {
       console.error(error);
       setError("Erreur lors de la création du compte");

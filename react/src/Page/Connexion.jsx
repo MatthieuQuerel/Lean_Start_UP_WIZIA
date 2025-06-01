@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import "./Style/Error.css"
 import { useStateContext } from '../Context/ContextProvider';
+import axiosClient from "../axios-client";
+
 const Connexion = () => {
   const [authState, setAuthState] = useState({
     Email: '',
@@ -27,7 +29,6 @@ const Connexion = () => {
   };
 
   const Connections = async (e) => {
-
     e.preventDefault();
     const { Email, PassWord } = authState;
 
@@ -38,26 +39,12 @@ const Connexion = () => {
         setError('Adresse e-mail invalide.');
       } else {
         setError('');
-        const option = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            email: Email,
-            password: PassWord,
-          }),
-        };
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}auth/login`, option);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Connexion réussie :', data);
-          setToken(data.token)
-          setUser(data.user);
-        } else {
-          setError("Identifiants incorrects.");
-        }
+        const { data } = await axiosClient.post('/auth/login', {
+          email: Email,
+          password: PassWord,
+        });
+        setUser(data.user);
+        setToken(data.token);
       }
     } catch (e) {
       console.error('Erreur lors de la requête :', e);
@@ -102,7 +89,6 @@ const Connexion = () => {
             <Link to="/PasswordForget" style={{ color: 'blue', textDecoration: 'none' }}>
               Mot de passe oublié
             </Link>
-
           </div>
           {error && <p className="errorText">{error}</p>}
           <button type="submit">Connexion</button>

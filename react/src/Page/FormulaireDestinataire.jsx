@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Style/FormulaireDestinataire.css";
 import { useStateContext } from "../Context/ContextProvider";
+import axiosClient from "../axios-client";
 
 const FormulaireDestinataire = () => {
   const location = useLocation();
@@ -26,37 +27,15 @@ const FormulaireDestinataire = () => {
     e.preventDefault();
 
     try {
-      let response;
-     
-
       if (destinataire?.id) {
         // Mise à jour
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/UpdateDestinataireClient/${user.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
+        await axiosClient.put(`/mail/UpdateDestinataireClient/${user.id}`, formData);
       } else {
         // Ajout
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/AddDestinataireClient/${user.id}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
+        await axiosClient.post(`/mail/AddDestinataireClient/${user.id}`, formData);
       }
-
-      const data = await response.json();
-      if (data.success) {
-        toast.success(destinataire?.id ? "Modification réussie" : "Ajout réussi");
-        navigate("/Dashboard/Newsletters/ListeDestinataireNewsletters");
-      } else {
-        toast.error("Erreur : " + data.message);
-        console.error("Erreur API :", data.error);
-      }
+      toast.success(destinataire?.id ? "Modification réussie" : "Ajout réussi");
+      navigate("/Dashboard/Newsletters/ListeDestinataireNewsletters");
     } catch (error) {
       console.error("Erreur requête :", error);
       toast.error("Une erreur est survenue.");

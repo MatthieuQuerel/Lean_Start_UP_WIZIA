@@ -19,7 +19,7 @@ const Abonnement = () => {
           throw new Error("Erreur lors de la récupération de l’abonnement");
         }
         const data = await response.json();
-        setTypeAbonnement(data); 
+        setTypeAbonnement(data);
       } catch (error) {
         console.error("Erreur lors de la récupération de l’abonnement :", error);
       }

@@ -69,7 +69,7 @@ class C_UserController extends Controller
       return response()->json([
         'message' => 'Erreur lors de l\'ajout de l\'utilisateur',
         'error' => $e->getMessage()
-    ], 500);
+      ], 500);
     }
     //   try {
     //     $request->validate([

@@ -1,10 +1,14 @@
 import "./Style/NavBar.css"
 import { NavLink } from "react-router-dom";
+import { useStateContext } from "../../Context/ContextProvider";
 
 const NavBar = () => {
+  const { user } = useStateContext();
+  console.log(user);
   function logout(event) {
     event.preventDefault();
-
+    localStorage.removeItem('ACCESS_TOKEN');
+    window.location.href = '/';
   }
   return (
     <nav className="navbar">

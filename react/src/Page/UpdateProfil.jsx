@@ -1,9 +1,9 @@
-
 import NavBar from "../Components/Retulisatble/NavBar";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import './Style/UpdateProfil.css';
 import { useStateContext } from "../Context/ContextProvider";
+import axiosClient from "../axios-client";
 
 const UpdateProfil = () => {
   const [users, setUsers] = useState({
@@ -20,18 +20,13 @@ const UpdateProfil = () => {
     console.log(user.id)
     const fetchUser = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}users/${user.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setUsers({
-            firstName: data.firstName || "",
-            name: data.name || "",
-            email: data.email || "",
-            number: data.number || ""
-          });
-        } else {
-          toast.error("Erreur lors de la récupération du profil.");
-        }
+        const { data } = await axiosClient.get(`/users/${user.id}`);
+        setUsers({
+          firstName: data.firstName || "",
+          name: data.name || "",
+          email: data.email || "",
+          number: data.number || ""
+        });
       } catch (error) {
         toast.error("Erreur réseau lors de la récupération du profil.");
       }
@@ -49,19 +44,8 @@ const UpdateProfil = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}users/${user.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(users),
-      });
-
-      if (response.ok) {
-        toast.success("Profil mis à jour !");
-      } else {
-        toast.error("Erreur lors de la mise à jour.");
-      }
+      await axiosClient.put(`/users/${user.id}`, users);
+      toast.success("Profil mis à jour !");
     } catch (error) {
       toast.error("Erreur réseau lors de la mise à jour.");
     }
