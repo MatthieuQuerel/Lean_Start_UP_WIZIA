@@ -25,7 +25,7 @@ const CreateCompte = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post('/auth/register', formData);
+      await axiosClient.post('auth/register', formData);
       window.location.href = "/";
     } catch (error) {
       console.error(error);

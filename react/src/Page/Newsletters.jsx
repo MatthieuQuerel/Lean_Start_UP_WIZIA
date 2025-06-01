@@ -65,7 +65,7 @@ const Newsletters = () => {
         const formattedSelectedDate = formatDateAmerican(new Date(selectedDates.startDate));
 
         if (formattedSelectedDate === formattedToday) {
-          const response = await axiosClient.post('/mail/generateMail', {
+          const response = await axiosClient.post('mail/generateMail', {
             to: Mail.to,
             subject: Mail.subject,
             body: generatedPrompt,
@@ -105,7 +105,7 @@ const Newsletters = () => {
 
   const AddNewsletters = async () => {
     try {
-      const { data } = await axiosClient.post(`/mail/AddMail/${user.id}`, {
+      const { data } = await axiosClient.post(`mail/AddMail/${user.id}`, {
         to: Mail.to,
         toListId: Mail.toListId,
         subject: Mail.subject,

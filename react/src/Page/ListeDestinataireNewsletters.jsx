@@ -14,7 +14,7 @@ const ListeDestinataireNewsletters = () => {
   useEffect(() => {
     const fetchDestinataires = async () => {
       try {
-        const { data } = await axiosClient.get(`/mail/ListDestinataireClient/${user.id}`);
+        const { data } = await axiosClient.get(`mail/ListDestinataireClient/${user.id}`);
         if (data.success) {
           setDestinataires(data.data);
         } else {
@@ -33,7 +33,7 @@ const ListeDestinataireNewsletters = () => {
     if (!window.confirm("Confirmer la suppression ?")) return;
 
     try {
-      const { data } = await axiosClient.delete(`/mail/ListDestinataireClient/${id}`);
+      const { data } = await axiosClient.delete(`mail/ListDestinataireClient/${id}`);
       if (data.success) {
         setDestinataires((prev) => prev.filter((d) => d.id !== id));
         toast.success("Destinataire supprimé");

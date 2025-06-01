@@ -19,7 +19,7 @@ const UpdateProfil = () => {
     if (!user.id) return;
     const fetchUser = async () => {
       try {
-        const { data } = await axiosClient.get(`/users/${user.id}`);
+        const { data } = await axiosClient.get(`users/${user.id}`);
         setUsers({
           firstName: data.firstName || "",
           name: data.name || "",
@@ -43,7 +43,7 @@ const UpdateProfil = () => {
 
   const handleUpdate = async () => {
     try {
-      await axiosClient.put(`/users/${user.id}`, users);
+      await axiosClient.put(`users/${user.id}`, users);
       toast.success("Profil mis à jour !");
     } catch (error) {
       toast.error("Erreur réseau lors de la mise à jour.");

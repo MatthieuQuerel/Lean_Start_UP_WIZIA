@@ -59,7 +59,7 @@ const ReseauxSociaux = () => {
             now: false
           };
 
-          const { data } = await axiosClient.post('/post', post);
+          const { data } = await axiosClient.post('post', post);
           if (data.success) {
             toast.success("Post programmé avec succès");
           } else {

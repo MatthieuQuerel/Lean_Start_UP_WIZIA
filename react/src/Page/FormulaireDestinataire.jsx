@@ -29,10 +29,10 @@ const FormulaireDestinataire = () => {
     try {
       if (destinataire?.id) {
         // Mise à jour
-        await axiosClient.put(`/mail/UpdateDestinataireClient/${user.id}`, formData);
+        await axiosClient.put(`mail/UpdateDestinataireClient/${user.id}`, formData);
       } else {
         // Ajout
-        await axiosClient.post(`/mail/AddDestinataireClient/${user.id}`, formData);
+        await axiosClient.post(`mail/AddDestinataireClient/${user.id}`, formData);
       }
       toast.success(destinataire?.id ? "Modification réussie" : "Ajout réussi");
       navigate("/Dashboard/Newsletters/ListeDestinataireNewsletters");
