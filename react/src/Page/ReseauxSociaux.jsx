@@ -5,6 +5,8 @@ import { useState } from 'react';
 import "./Style/ReseauxSociaux.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosClient from "../axios-client";
+
 const ReseauxSociaux = () => {
 
   const [error, setError] = useState("");
@@ -49,39 +51,30 @@ const ReseauxSociaux = () => {
       const formattedSelect = formatDate(new Date(selectedDates.startDate));
 
       if (new Date(formattedSelect) >= new Date(formattedToday)) {
-        console.log('test3');
-        const post = {
-          network: 'Facebook',
-          post: generatedPrompt,
-          date: formattedSelect,
-          now: false
-        }
+        try {
+          const post = {
+            network: 'Facebook',
+            post: generatedPrompt,
+            date: formattedSelect,
+            now: false
+          };
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}post`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(post),
-        })
-        if (response.status === 200) {
-          const data = await response.json();
-        } else {
-          toast("Erreur lors de la programmation de l'évènement", {
-            type: "error"
-          })
+          const { data } = await axiosClient.post('post', post);
+          if (data.success) {
+            toast.success("Post programmé avec succès");
+          } else {
+            toast.error("Erreur lors de la programmation de l'évènement");
+          }
+        } catch (error) {
+          console.error("Erreur lors de la programmation :", error);
+          toast.error("Erreur lors de la programmation de l'évènement");
         }
-
       } else {
-        toast("Vous ne pouvez pas programmer un évènement pour une date passée", {
-          type: "error"
-        })
+        toast.error("Vous ne pouvez pas programmer un évènement pour une date passée");
       }
 
     } else {
-      toast("Veuillez générer un prompt et sélectionner une date", {
-        type: "warning"
-      })
+      toast.warning("Veuillez générer un prompt et sélectionner une date");
     }
   };
 

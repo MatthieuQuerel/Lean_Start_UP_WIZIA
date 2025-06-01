@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Style/ListeDestinataireNewsletters.css";
 import { useStateContext } from "../Context/ContextProvider";
+import axiosClient from "../axios-client";
 
 const ListeDestinataireNewsletters = () => {
   const navigate = useNavigate();
@@ -13,8 +14,7 @@ const ListeDestinataireNewsletters = () => {
   useEffect(() => {
     const fetchDestinataires = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/ListDestinataireClient/${user.id}`);
-        const data = await response.json();
+        const { data } = await axiosClient.get(`mail/ListDestinataireClient/${user.id}`);
         if (data.success) {
           setDestinataires(data.data);
         } else {
@@ -29,15 +29,11 @@ const ListeDestinataireNewsletters = () => {
     fetchDestinataires();
   }, [user.id]);
 
-
   const handleDelete = async (id) => {
     if (!window.confirm("Confirmer la suppression ?")) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/ListDestinataireClient/${id}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
+      const { data } = await axiosClient.delete(`mail/ListDestinataireClient/${id}`);
       if (data.success) {
         setDestinataires((prev) => prev.filter((d) => d.id !== id));
         toast.success("Destinataire supprimé");

@@ -11,7 +11,8 @@ const PaiementStripe = () => {
 const stripePromise = loadStripe("pk_test_51RKyjqD0HuVWNNfnjN51P4NNwHAvF0kYBHKLLgpSgLfLdG1Vm2Etp24hbxTbW699vyzVBq7ZAbg16m1g1nm9uL9m00JPJkgBN4");
   const location = useLocation();
   const navigate = useNavigate();
-  const ValeurPrix = location.state || { prix: null };
+  const { prix = null, nom = null } = location.state || {};
+  
   return (
   <>
     <NavBar />
@@ -20,7 +21,7 @@ const stripePromise = loadStripe("pk_test_51RKyjqD0HuVWNNfnjN51P4NNwHAvF0kYBHKLL
     </button>
     <div className="UpdateAbonnement">
       <Elements stripe={stripePromise}>
-        <CheckoutForm price={ValeurPrix.prix} />
+        <CheckoutForm price={prix} nom ={nom} />
       </Elements>
       <ToastContainer position="top-right" />
     </div>

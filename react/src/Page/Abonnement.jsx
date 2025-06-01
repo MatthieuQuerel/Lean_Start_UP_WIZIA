@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import NavBar from "../Components/Retulisatble/NavBar";
 import CardWelcome from "../Components/Retulisatble/CardWelcome";
 import { useStateContext } from "../Context/ContextProvider";
+import axiosClient from "../axios-client";
 
 const Abonnement = () => {
   const [typeAbonnement, setTypeAbonnement] = useState(null);
@@ -12,23 +13,17 @@ const Abonnement = () => {
       try {
         if (!user?.id) return;
 
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}stripe/abonnement/${user.id}`
-        );
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération de l’abonnement");
-        }
-        const data = await response.json();
-        setTypeAbonnement(data); 
+        const { data } = await axiosClient.get(`stripe/abonnement/${user.id}`);
+        setTypeAbonnement(data);
       } catch (error) {
-        console.error("Erreur lors de la récupération de l’abonnement :", error);
+        console.error("Erreur lors de la récupération de l'abonnement :", error);
       }
     };
 
     fetchAbonnement();
   }, [user.id]);
 
-  // Fonction qui retourne true pour griser la carte correspondant à l’abonnement actif
+  // Fonction qui retourne true pour griser la carte correspondant à l'abonnement actif
   const isGrayed = (type) => {
     if (typeAbonnement === "isFree" && type === "Free") return true;
     if (typeAbonnement === "isPremium" && type === "Premium") return true;

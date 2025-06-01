@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { toast } from "react-toastify";
+import { useStateContext } from "../Context/ContextProvider";
 import "./Style/StripeCard.css";
+import axiosClient from "../axios-client";
 
-const CheckoutForm = ({ price }) => {
+const CheckoutForm = ({ price, nom }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { user } = useStateContext();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -24,19 +27,13 @@ const CheckoutForm = ({ price }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements || !amount) return;
-
+    
+    const IdUser = user.id;
     setProcessing(true);
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}stripe/create-payment-intent`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount, email }),
-      });
-
-      const data = await response.json();
+     try {
+      const response = await axiosClient.post(`stripe/create-payment-intent`, { amount, email ,nom , IdUser });
+      const data = response.data;
 
       if (data.error) {
         toast.error(`Erreur backend : ${data.error}`);
@@ -63,7 +60,6 @@ const CheckoutForm = ({ price }) => {
       } else {
         toast.warning("Paiement non complété.");
       }
-
     } catch (err) {
       console.error("Erreur lors du traitement :", err);
       toast.error("Une erreur est survenue.");

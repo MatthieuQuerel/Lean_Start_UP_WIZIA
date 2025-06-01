@@ -1,30 +1,34 @@
 import { useState, useEffect } from "react";
 import "./Style/CardListDestinataire.css";
-import  {useStateContext}  from "../Context/ContextProvider";
+import { useStateContext } from "../Context/ContextProvider";
+import axiosClient from "../axios-client";
+
 const CardListDestinataire = ({ setMail }) => {
   const [destinataires, setDestinataires] = useState([]);
   const [error, setError] = useState("");
-    const { user } = useStateContext();
+  const { user } = useStateContext();
+
   useEffect(() => {
     if (!user.id) return;  
   
     const ListDestinataire = async () => {
-      try { 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}mail/ListDestinataireClient/${user.id}`);
-        const data = await response.json();
+      // try { 
+
+        const { data } = await axiosClient.get(`mail/ListDestinataireClient/${user.id}`);
   
-        if (response.ok && data.success) {
+        if (data.success) {
           setDestinataires(data.data);
         } else {
           throw new Error("Erreur lors de la récupération");
         }
-      } catch (e) {
-        console.error("Erreur lors de la récupération des destinataires :", e);
-        setError("Une erreur s'est produite. Veuillez réessayer.");
-      }
+      // } catch (e) {
+      //   console.error("Erreur lors de la récupération des destinataires :", e);
+      //   setError("Une erreur s'est produite. Veuillez réessayer.");
+      // }
     };
     ListDestinataire();
   }, [user.id]);
+
   return (
     <div className="card-list-container">
       {error && <p style={{ color: "red" }}>{error}</p>}

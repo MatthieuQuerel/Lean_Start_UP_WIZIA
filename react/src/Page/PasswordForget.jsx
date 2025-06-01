@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Style/PasswordForget.css";
+import axiosClient from "../axios-client";
 
 const PasswordForget = () => {
   const [email, setEmail] = useState("");
@@ -12,19 +12,8 @@ const PasswordForget = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}auth/password/forget`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setMessage("Un email de réinitialisation a été envoyé.");
-      } else {
-        setMessage("Erreur : adresse email inconnue.");
-      }
+      await axiosClient.post('auth/password/forget', { email });
+      setMessage("Un email de réinitialisation a été envoyé.");
     } catch (error) {
       console.error("Erreur :", error);
       setMessage("Une erreur s'est produite.");

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Style/PasswordForget.css";
+import axiosClient from "../axios-client";
 
 const MailPassword = () => {
   const [formData, setFormData] = useState({
@@ -19,19 +20,8 @@ const MailPassword = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}auth/password/forget`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setMessage("Le mot de passe a été mis à jour avec succès.");
-      } else {
-        setMessage("Erreur lors de la mise à jour du mot de passe.");
-      }
+      await axiosClient.post('auth/password/forget', formData);
+      setMessage("Le mot de passe a été mis à jour avec succès.");
     } catch (error) {
       console.error("Erreur :", error);
       setMessage("Une erreur s'est produite.");
