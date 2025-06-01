@@ -64,7 +64,7 @@ class C_UserController extends Controller
 
       return response()->json($user, 200);
     } catch (\Exception $e) {
-      return response()->json(['message' => 'Erreur lors de l\'ajout de l\'utilisateur'], 500);
+      return response()->json(['message' => $e->getMessage()], 400);
     }
   }
 

@@ -54,9 +54,8 @@ const Connexion = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('Connexion réussie :', data);
-          setToken(data.token)
           setUser(data.user);
+          setToken(data.token);
         } else {
           setError("Identifiants incorrects.");
         }
