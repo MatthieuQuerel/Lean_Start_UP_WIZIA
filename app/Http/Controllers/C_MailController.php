@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
-use App\Models\clients;
+use App\Models\Clients;
 use App\Models\Mailings;
 use App\Models\ClientsMailings;
 use PHPMailer\PHPMailer\Exception;
