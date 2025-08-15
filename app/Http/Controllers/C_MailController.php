@@ -60,12 +60,12 @@ class C_MailController extends Controller
       
     ]);
     try {
-         $to = $request->input('to');
-        $subject = $request->input('subject');
-        $body = $request->input('body');
-        $altBody = $request->input('altBody', '');
-        $fromName = $request->input('fromName', 'WIZIA');
-        $fromEmail = $request->input('fromEmail', 'contact@dimitribeziau.fr');
+      $to = $request->input('to');
+      $subject = $request->input('subject');
+      $body = $request->input('body');
+      $altBody = $request->input('altBody', '');
+      $fromName = $request->input('fromName', 'WIZIA');
+      $fromEmail = $request->input('fromEmail', 'contact@dimitribeziau.fr');
 
       foreach ($to as $destinataire) {
 
@@ -86,9 +86,9 @@ class C_MailController extends Controller
         }
       }
 
-        return response()->json(['message' => 'Email(s) envoyé(s) avec succès','success' => true], 200);
+      return response()->json(['message' => 'Email(s) envoyé(s) avec succès', 'success' => true], 200);
     } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage(),'success' => false], 500);
+      return response()->json(['error' => $e->getMessage(), 'success' => false], 500);
     }
   }
   
@@ -172,39 +172,39 @@ class C_MailController extends Controller
 
   public function addListDestinataire(Request $request, $idUser)
   {
-    try {
-      if (!is_numeric($idUser)) {
-        return response()->json([
-          'success' => false,
-          'message' => 'ID invalide'
-        ], 400);
-      }
-
-      $request->validate([
-        'mail' => 'required|email',
-        'nom' => 'required|string',
-        'prenom' => 'required|string',
-      ]);
-
-      $client = new clients();
-      $client->idUser = $idUser;
-      $client->mail = $request->mail;
-      $client->nom = $request->nom;
-      $client->prenom = $request->prenom;
-      $client->save();
-
-      return response()->json([
-        'success' => true,
-        'message' => 'Destinataire ajouté avec succès',
-        'data' => $client
-      ], 201);
-    } catch (\Exception $e) {
+    // try {
+    if (!is_numeric($idUser)) {
       return response()->json([
         'success' => false,
-        'message' => 'Erreur lors de l\'ajout du destinataire',
-        'error' => $e->getMessage()
-      ], 500);
+        'message' => 'ID invalide'
+      ], 400);
     }
+
+    $request->validate([
+      'mail' => 'required|email',
+      'nom' => 'required|string',
+      'prenom' => 'required|string',
+    ]);
+
+    $client = new clients();
+    $client->idUser = $idUser;
+    $client->mail = $request->mail;
+    $client->nom = $request->nom;
+    $client->prenom = $request->prenom;
+    $client->save();
+
+    return response()->json([
+      'success' => true,
+      'message' => 'Destinataire ajouté avec succès',
+      'data' => $client
+    ], 201);
+    // } catch (\Exception $e) {
+    //   return response()->json([
+    //     'success' => false,
+    //     'message' => 'Erreur lors de l\'ajout du destinataire',
+    //     'error' => $e->getMessage()
+    //   ], 500);
+    // }
   }
 
   public function updateListDestinataire(Request $request, $idUser)
