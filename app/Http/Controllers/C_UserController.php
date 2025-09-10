@@ -77,8 +77,8 @@ class C_UserController extends Controller
     $user->description = $request->description;
     $user->idAbonnement = '1';
     $user->save();
-
-    return response()->json($user, 200);
+    $token = $user->createToken('auth_token')->plainTextToken;
+    return response()->json(['user' =>$user,'token' =>$token], 200);
     // } catch (\Exception $e) {
     //   return response()->json([
     //     'message' => 'Erreur lors de l\'ajout de l\'utilisateur',
