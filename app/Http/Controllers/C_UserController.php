@@ -51,41 +51,41 @@ class C_UserController extends Controller
   public function register(Request $request)
   {
     // try {
-      $request->validate([
-        'first_name' => 'required',
-        'last_name' => 'required',
-        'email' => 'required|email|unique:users',
-        'activity' => 'required',
-        'password' => 'required',
-        'password_confirmation' => 'required|same:password',
-        'phone' => 'nullable|numeric',
-        'logo' => 'nullable|string',
-        'color' => 'required',
-        'description' => 'required',
-      ]);
-     
-      
-      $user = new User();
-      $user->first_name = $request->first_name;
-      $user->last_name = $request->last_name;
-      $user->email = $request->email;
-      $user->password = password_hash($request->password, PASSWORD_DEFAULT);
-      $user->phone = $request->phone;
-      $user->activity = $request->activity;
-      $user->logo = $request->logo;
-      $user->color = $request->color;
-      $user->description = $request->description;
-      $user->idAbonnement ='1'; 
-      $user->save();
+    $request->validate([
+      'first_name' => 'required',
+      'last_name' => 'required',
+      'email' => 'required|email|unique:users',
+      'activity' => 'required',
+      'password' => 'required',
+      'password_confirmation' => 'required|same:password',
+      'phone' => 'nullable|numeric',
+      'logo' => 'nullable|string',
+      'color' => 'required',
+      'description' => 'required',
+    ]);
 
-      return response()->json($user, 200);
+
+    $user = new User();
+    $user->first_name = $request->first_name;
+    $user->last_name = $request->last_name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->phone = $request->phone;
+    $user->activity = $request->activity;
+    $user->logo = $request->logo;
+    $user->color = $request->color;
+    $user->description = $request->description;
+    $user->idAbonnement = '1';
+    $user->save();
+
+    return response()->json($user, 200);
     // } catch (\Exception $e) {
     //   return response()->json([
     //     'message' => 'Erreur lors de l\'ajout de l\'utilisateur',
     //     'error' => $e->getMessage()
     //   ], 500);
     // }
-    
+
   }
   public function GetAuthenticatedUser(Request $request)
   {
@@ -93,7 +93,7 @@ class C_UserController extends Controller
     if (!$user) {
       return response()->json(['message' => 'Utilisateur non authentifié'], 401);
     }
-    return response()->json(["User"=>$user], 200);
+    return response()->json(["User" => $user], 200);
   }
 
   public function login(Request $request)
@@ -155,12 +155,12 @@ class C_UserController extends Controller
   {
     try {
       $request->validate([
-          'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-   
+        'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+
       ]);
-      $image = $request->file('file'); 
+      $image = $request->file('file');
       $imagePath = $image->store('logo', 'public');
-      
+
       // $pieceJointe = new PieceJointes();
       // $pieceJointe->path = $imagePath;
       // $pieceJointe->type = $request->type; 
@@ -168,16 +168,15 @@ class C_UserController extends Controller
       // $pieceJointe->save();
 
       return response()->json([
-          'message' => 'Image uploadée et enregistrée avec succès',
-          'path' => env("APP_URL").'/storage/'.$imagePath
+        'message' => 'Image uploadée et enregistrée avec succès',
+        'path' => env("APP_URL") . '/storage/' . $imagePath
       ], 200);
-
-  } catch (\Exception $e) {
+    } catch (\Exception $e) {
       return response()->json([
-          'message' => 'Erreur lors de l\'ajout de l\'image',
-          'error' => $e->getMessage()
-      ], 500);   
-  }
+        'message' => 'Erreur lors de l\'ajout de l\'image',
+        'error' => $e->getMessage()
+      ], 500);
+    }
   }
   // public function index(){
   //             $users = User::all();

@@ -34,7 +34,7 @@ function Signup() {
       alert("Veuillez remplir le champ d'activité.");
       return;
     }
-    const response = await axiosClient.post('/register', formData)
+    const response = await axiosClient.post('/auth/register', formData)
     if (response.status === 200 || response.status === 204) {
       console.log(response)
     } else {
