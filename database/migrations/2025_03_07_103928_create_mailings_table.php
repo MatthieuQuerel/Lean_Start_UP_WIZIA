@@ -23,6 +23,7 @@ return new class extends Migration
         Schema::create('mailings', function (Blueprint $table) {
             $table->id();
             $table->integer('idUser');
+            $table->integer('idListeClient');
             $table->string('subject');
             $table->text('body');
             $table->text('altBody')->nullable();

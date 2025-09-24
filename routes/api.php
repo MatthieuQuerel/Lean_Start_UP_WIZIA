@@ -27,7 +27,8 @@ Route::group(['prefix' => "/post"], function () {
   Route::name('post.')->controller(C_NetwoorkController::class)->group(function () {
     Route::post('/Facebook', 'createAndPublishPost')->name('creatAndPublish');
     Route::post('/Linkeding', 'createAndPublishPostLinkeding')->name('createAndPublishPostLinkeding');
-    Route::post('/Instagrame', 'createAndPublishPostInstagrame')->name('createAndPublishPostInstagrame');
+    Route::post('/InstagramePicture', 'createAndPublishPostInstagramePicture')->name('createAndPublishPostInstagramePicture');
+    Route::post('/LinkedingPicture', 'createAndPublishPostPictureLinkeding')->name('createAndPublishPostPictureLinkeding');
   });
 });
 Route::group(['prefix' => '/bill'], function () {

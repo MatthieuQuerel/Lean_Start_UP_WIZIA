@@ -15,7 +15,9 @@ return new class extends Migration
       $table->id();
       $table->date('datePost');
       $table->integer('idUser');
-      $table->integer('idPieceJointe');
+      $table->enum('network', ['facebook', 'linkedin', 'instagram']);
+      $table->string('url',5000);
+      $table->string('titrePost',5000)->nullable();
       $table->string('post', 5000);
       $table->timestamps();
     });

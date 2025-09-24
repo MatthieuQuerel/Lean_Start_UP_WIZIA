@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('limites', function (Blueprint $table) {
+        Schema::create('generations', function (Blueprint $table) {
             $table->id();
-            $table->integer('idAbonnement')->unique();
-            $table->enum('nomModule', ['Module1']);
-            $table->boolean('islimitAbonnement');
-            $table->boolean('isprofessionnelle'); 
-            $table->integer('isLimitTexte'); 
-            $table->integer('isLimiteImage'); 
+            $table->string('IdUser');
+            $table->string('generation_Prompte');
+            $table->string('generation_Picture');
+            $table->string('dateDebut');
+            $table->string('dateFin');
+
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('limites');
+        Schema::dropIfExists('generations');
     }
 };

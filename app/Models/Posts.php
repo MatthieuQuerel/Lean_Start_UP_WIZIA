@@ -9,7 +9,9 @@ class Posts extends Model
   protected $fillable = [
     "datePost",
     "idUser",
-    "idPieceJointe",
-    "post"
+    "newtork",
+    "url",
+    "titrePost",
+    "post",
   ];
 }

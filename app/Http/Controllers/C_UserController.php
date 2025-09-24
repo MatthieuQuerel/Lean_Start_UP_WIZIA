@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Models\Abonnements;
+use App\Models\Generation;
+use App\Models\Limites;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\PieceJointes;
@@ -78,6 +80,14 @@ class C_UserController extends Controller
     $user->idAbonnement = '1';
     $user->save();
     $token = $user->createToken('auth_token')->plainTextToken;
+
+    $generation = new Generation();
+    $generation->IdUser = $user->id;
+    $generation->generation_Prompte = '0';
+    $generation->generation_Picture = '0';
+    $generation->dateDebut = date('Y-m-01');
+    $generation->dateFin = date('Y-m-t');
+    $generation->save();
     return response()->json(['user' => $user, 'token' => $token], 200);
     // } catch (\Exception $e) {
     //   return response()->json([
@@ -177,23 +187,42 @@ class C_UserController extends Controller
       ], 500);
     }
   }
-  // public function index(){
-  //             $users = User::all();
-  //             dd($users);
-  //         }
+  public function abonnementUser($id)
+  {
+    try {
+      $user = User::find($id);
+      if (!$user) {
+        return response()->json(['message' => 'user non trouvé'], 404);
+      }
+
+      $abonnement = Abonnements::find($user->idAbonnement);
+      if ($abonnement) {
+        return response()->json(['abonnement' => $abonnement], 200);
+      }
+      $Limit = limites::find($abonnement->id);
+      $LimitePicture = $Limit->isLimiteImage;
+      $LimiteTexte = $Limit->isLimitTexte;
+
+      $generation = Generation::find($id);
+      $UsedPicture = $generation->generation_Picture;
+      $UsedTexte = $generation->generation_Prompte;
+
+// faire l ajoue des limites pour l utilisateur et faire un +1 pour l'abonnement
+       return response()->json([
+        'Ambonement' =>$abonnement->id,
+        'PictureLimite ' =>$LimitePicture,
+        'TexteLimite ' =>$LimiteTexte,
+        'UsedPicture ' =>$UsedPicture,
+        'UsedTexte ' =>$UsedTexte,
+      ], 200);
+
+
+
+    } catch (\Exception $e) {
+      return response()->json(['message' => 'Erreur lors de la récupération de l\'abonnement'], 500);
+    }
+  }
+
 
 }
 
-// namespace App\Http\Controllers;
-
-// use App\Http\Controllers\Controller;
-// use Illuminate\Http\Request;
-// use App\Models\User;
-
-// class UserController extends Controller
-// {
-//     public function index(){
-//         // $users = User::all();
-//         // dd($users);
-//     }
-// }
