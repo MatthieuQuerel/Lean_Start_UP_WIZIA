@@ -83,8 +83,10 @@ class C_UserController extends Controller
 
     $generation = new Generation();
     $generation->IdUser = $user->id;
-    $generation->generation_Prompte = '0';
-    $generation->generation_Picture = '0';
+    $generation->generation_Prompte = 0;
+    $generation->generation_Picture = 0;
+    $generation->generation_Newsletter = 0;
+    $generation->nombre_Contact_Newsletter = 0;
     $generation->dateDebut = date('Y-m-01');
     $generation->dateFin = date('Y-m-t');
     $generation->save();
@@ -187,41 +189,55 @@ class C_UserController extends Controller
       ], 500);
     }
   }
-  public function abonnementUser($id)
-  {
+  public static function abonnementUser($id)
+{
     try {
-      $user = User::find($id);
-      if (!$user) {
-        return response()->json(['message' => 'user non trouvé'], 404);
-      }
+        $user = User::find($id);
+        if (!$user) {
+            return [
+                'error' => true,
+                'message' => 'user non trouvé'
+            ];
+        }
 
-      $abonnement = Abonnements::find($user->idAbonnement);
-      if ($abonnement) {
-        return response()->json(['abonnement' => $abonnement], 200);
-      }
-      $Limit = limites::find($abonnement->id);
-      $LimitePicture = $Limit->isLimiteImage;
-      $LimiteTexte = $Limit->isLimitTexte;
+        $abonnement = Abonnements::find($user->idAbonnement);
+        if (!$abonnement) {
+            return [
+                'error' => true,
+                'message' => 'Abonnement non trouvé'
+            ];
+        }
 
-      $generation = Generation::find($id);
-      $UsedPicture = $generation->generation_Picture;
-      $UsedTexte = $generation->generation_Prompte;
+        $limit = limites::find($abonnement->id);
+        $generation = Generation::find($id);
 
-// faire l ajoue des limites pour l utilisateur et faire un +1 pour l'abonnement
-       return response()->json([
-        'Ambonement' =>$abonnement->id,
-        'PictureLimite ' =>$LimitePicture,
-        'TexteLimite ' =>$LimiteTexte,
-        'UsedPicture ' =>$UsedPicture,
-        'UsedTexte ' =>$UsedTexte,
-      ], 200);
+        // Déterminer le type d'abonnement
+        if ($abonnement->isFree == 1) {
+            $nomAbonement = "isFree";
+        } elseif ($abonnement->isPremium == 1) {
+            $nomAbonement = "isPremium";
+        } elseif ($abonnement->isProfessionnel == 1) {
+            $nomAbonement = "isProfessionnel";
+        } else {
+            $nomAbonement = "unknown";
+        }
 
-
-
+        return [
+            'error' => false,
+            'AbonementType' => $nomAbonement,
+            'PictureLimite' => $limit->isLimiteImage ?? 0,
+            'TexteLimite' => $limit->isLimitTexte ?? 0,
+            'UsedPicture' => $generation->generation_Picture ?? 0,
+            'UsedTexte' => $generation->generation_Prompte ?? 0,
+        ];
     } catch (\Exception $e) {
-      return response()->json(['message' => 'Erreur lors de la récupération de l\'abonnement'], 500);
+        return [
+            'error' => true,
+            'message' => 'Erreur lors de la récupération de l\'abonnement'
+        ];
     }
-  }
+}
+
 
 
 }

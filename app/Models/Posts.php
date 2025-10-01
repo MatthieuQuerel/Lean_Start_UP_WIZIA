@@ -9,7 +9,7 @@ class Posts extends Model
   protected $fillable = [
     "datePost",
     "idUser",
-    "newtork",
+    "network",
     "url",
     "titrePost",
     "post",

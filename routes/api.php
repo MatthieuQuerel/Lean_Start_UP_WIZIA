@@ -29,6 +29,8 @@ Route::group(['prefix' => "/post"], function () {
     Route::post('/Linkeding', 'createAndPublishPostLinkeding')->name('createAndPublishPostLinkeding');
     Route::post('/InstagramePicture', 'createAndPublishPostInstagramePicture')->name('createAndPublishPostInstagramePicture');
     Route::post('/LinkedingPicture', 'createAndPublishPostPictureLinkeding')->name('createAndPublishPostPictureLinkeding');
+    Route::post('/ListePosts', 'ListerPosts')->name('ListerPosts');
+    
   });
 });
 Route::group(['prefix' => '/bill'], function () {

@@ -13,10 +13,11 @@ return new class extends Migration
   {
     Schema::create('posts', function (Blueprint $table) {
       $table->id();
-      $table->date('datePost');
+      $table->datetime('datePost');
       $table->integer('idUser');
+      $table->boolean('isValidated')->default(false);
       $table->enum('network', ['facebook', 'linkedin', 'instagram']);
-      $table->string('url',5000);
+      $table->string('url',5000)->nullable();
       $table->string('titrePost',5000)->nullable();
       $table->string('post', 5000);
       $table->timestamps();
