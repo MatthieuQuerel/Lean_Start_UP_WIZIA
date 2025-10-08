@@ -415,7 +415,7 @@ class C_MailController extends Controller
 // Mettre à jour un mailing
 public function updateMailing(Request $request, $idMailing)
 {
-  // ex : tu peux modif subject , body , altbody
+
     try {
         // Vérification que l'ID est bien un entier positif
         if (!ctype_digit((string)$idMailing)) {

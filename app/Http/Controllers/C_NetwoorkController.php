@@ -224,23 +224,27 @@ public function createAndPublishPostPictureLinkeding(Request $request)
     ]);
 }
 
-public function ListerPosts(Request $request)
-{
-    $request->validate([
-        'idUser' => 'required|integer'
-    ]);
+ public function ListerPosts($id)
+    {
+    
+        $userId = Auth::id() ?? $id;
 
-    $userId = Auth::id() ?? $request->idUser;
+       
+        $posts = Posts::where('idUser', $userId)->get();
+       
+        if ($posts->count() > 0) {
+            return response()->json([
+                'tabListe' => $posts,
+                'status' => 200,
+            ], 200);
+        }
 
-
-    $posts = Posts::where('idUser', $userId)->get();
-    if ($posts->count() > 0) {
+        // Si aucun post trouvé
         return response()->json([
-            'tabListe' => $posts,
-            'status' => 200,
-        ], 200);
+            'message' => 'Aucun post trouvé pour cet utilisateur.',
+            'status' => 404,
+        ], 404);
     }
-
     // // Vérifie l'abonnement de l'utilisateur
     // $abonnement = \App\Http\Controllers\C_UserController::abonnementUser($userId);
     // if ($abonnement['error']) {
@@ -354,7 +358,7 @@ public function ListerPosts(Request $request)
     //     'tabListe' => $listePosts,
     //     'status' => 200,
     // ], 200);
-}
+
 
 
 }
