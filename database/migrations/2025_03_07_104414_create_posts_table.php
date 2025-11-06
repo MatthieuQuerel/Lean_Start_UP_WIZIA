@@ -16,10 +16,14 @@ return new class extends Migration
       $table->datetime('datePost');
       $table->integer('idUser');
       $table->boolean('isValidated')->default(false);
+      $table->boolean('isPublished')->default(false);
       $table->enum('network', ['facebook', 'linkedin', 'instagram']);
-      $table->string('url',5000)->nullable();
-      $table->string('titrePost',5000)->nullable();
-      $table->string('post', 5000);
+      $table->string('url',500)->nullable();
+      $table->string('titrePost',500)->nullable();
+      $table->string('post', 500);
+      $table->string('IdpostNetwork');
+      $table->string('postLikeNetwork')->nullable();
+      $table->string('postCommentaireNetwork')->nullable();
       $table->timestamps();
     });
   }

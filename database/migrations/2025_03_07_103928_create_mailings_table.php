@@ -26,6 +26,8 @@ return new class extends Migration
             $table->integer('idListeClient');
             $table->string('subject');
             $table->text('body');
+            $table->boolean('isValidated')->default(false);
+            $table->boolean('isPublished')->default(false);
             $table->text('altBody')->nullable();
             $table->string('fromName')->nullable();
             $table->string('fromEmail')->nullable();

@@ -10,8 +10,13 @@ class Posts extends Model
     "datePost",
     "idUser",
     "network",
+    "isPublished",
+    "isValidated",
     "url",
     "titrePost",
     "post",
+    "IdpostNetwork",
+    "postLikeNetwork",
+    "postCommentaireNetwork",
   ];
 }

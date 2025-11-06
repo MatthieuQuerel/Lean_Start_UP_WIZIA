@@ -14,6 +14,8 @@ class Mailings extends Model
    'altBody',
    'fromName',
    'fromEmail',
-   'date'
+   'date',
+    'isPublished',
+    'isValidated',
     ];
 }

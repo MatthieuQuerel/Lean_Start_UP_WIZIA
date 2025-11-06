@@ -26,12 +26,16 @@ Route::group(['prefix' => '/users'], function () {
 });
 Route::group(['prefix' => "/post"], function () {
   Route::name('post.')->controller(C_NetwoorkController::class)->group(function () {
-    Route::post('/Facebook', 'createAndPublishPost')->name('creatAndPublish');
-    Route::post('/Linkeding', 'createAndPublishPostLinkeding')->name('createAndPublishPostLinkeding');
-    Route::post('/InstagramePicture', 'createAndPublishPostInstagramePicture')->name('createAndPublishPostInstagramePicture');
-    Route::post('/LinkedingPicture', 'createAndPublishPostPictureLinkeding')->name('createAndPublishPostPictureLinkeding');
+    Route::post('/Facebook', 'createAndPublishPostPictureFacebook')->name('createAndPublishPostPictureFacebook');
+    Route::post('/Instagrame', 'createAndPublishPostInstagramePicture')->name('createAndPublishPostInstagramePicture');
+    Route::post('/Linkeding', 'createAndPublishPostPictureLinkeding')->name('createAndPublishPostPictureLinkeding');
     Route::post('/addPosts/{id}', 'addPosts')->name('addPosts');
+    Route::post('/listerCommentairesandLike', 'ListeCommentaireAndLikeNetwork')->name('ListeCommentaireAndLikeNetwork');
+    Route::post('/listerCommentairesandLikeInstagram', 'listerCommentairesandLikeIstagram')->name('listerCommentairesandLikeIstagram');// supprimer après juste pour test
+    Route::post('/listerCommentairesandLikeLinkeding', 'listerCommentairesandLikeLinkeding')->name('listerCommentairesandLikeLinkeding');// supprimer après juste pour test
+    Route::post('/listerCommentairesandLikeFacebook', 'listerCommentairesandLikeFacebook')->name('listerCommentairesandLikeFacebook');// supprimer après juste pour test
     Route::get('/ListePosts/{id}', 'ListerPosts')->name('ListerPosts');
+    //Route::get('/ListePosts/{id}', 'ListerPosts')->name('ListerPosts');
     
     
   });

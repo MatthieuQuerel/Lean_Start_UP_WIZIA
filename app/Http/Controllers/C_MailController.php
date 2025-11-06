@@ -62,7 +62,8 @@ class C_MailController extends Controller
       'fromName' => 'nullable|string',
       'fromEmail' => 'nullable|email',
       'file' => 'nullable|array',
-      'file.*' => 'file|max:10240'
+      'file.*' => 'file|max:10240',
+      'idMailing' => 'nullable|integer',
     ]);
     try {
       $to = $request->input('to');
@@ -72,6 +73,7 @@ class C_MailController extends Controller
       $fromName = $request->input('fromName', 'WIZIA');
       $fromEmail = $request->input('fromEmail', 'contact@dimitribeziau.fr');
       $file = $request->file('file');
+      $idMail = $request->file('idMailing');
 
       foreach ($to as $destinataire) {
 
@@ -99,7 +101,11 @@ class C_MailController extends Controller
           throw new \Exception("Échec de l'envoi à $destinataire : " . $mail->ErrorInfo);
         }
       }
-
+      if($idMail!= null){
+       $request = new \Illuminate\Http\Request();
+        $request->merge(['id_mail' => $idMail]);
+        $this->publishedMail($request); 
+      }  
       return response()->json(['message' => 'Email(s) envoyé(s) avec succès', 'success' => true], 200);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage(), 'success' => false], 500);
@@ -129,6 +135,8 @@ class C_MailController extends Controller
         'file' => 'nullable|array',
         'file.*' => 'file|max:10240',
         'date' => 'nullable|dateteime',
+        'isValidated' => 'boolean',
+        'isPublished' => 'boolean',
       ]);
 
       $mail = new Mailings();
@@ -138,6 +146,8 @@ class C_MailController extends Controller
       $mail->altBody = $validated['altBody'] ?? null;
       $mail->fromName = $validated['fromName'] ?? null;
       $mail->fromEmail = $validated['fromEmail'] ?? null;
+      $mail->fromEmail = $validated['isPublished'] ?? false;
+      $mail->fromEmail = $validated['isValidated'] ?? false;
       $mail->date = $validated['date'] ?? date('Y-m-d H:i:s'); 
       $mail->save();
       
@@ -441,7 +451,9 @@ public function updateMailing(Request $request, $idMailing)
             'body' => 'required|string',
             'altBody' => 'nullable|string',
             'fromName' => 'nullable|string',
-            'fromEmail' => 'nullable|email'
+            'fromEmail' => 'nullable|email',
+            'isValidated' => 'boolean',
+            'isPublished' => 'boolean',
         ]);
 
         // Mise à jour des données
@@ -450,6 +462,8 @@ public function updateMailing(Request $request, $idMailing)
         $mailing->altBody = $validated['altBody'] ?? $mailing->altBody;
         $mailing->fromName = $validated['fromName'] ?? $mailing->fromName;
         $mailing->fromEmail = $validated['fromEmail'] ?? $mailing->fromEmail;
+        $mailing->fromEmail = $validated['isValidated'] ?? $mailing->isValidated;
+        $mailing->fromEmail = $validated['isPublished'] ?? $mailing->isPublished;
         $mailing->date = date('Y-m-d H:i:s'); 
         $mailing->save();
 
@@ -503,4 +517,52 @@ public function deleteMailing($idMailing)
         ], 500);
     }
 }
+  public function validatedMail(Request $request){
+   $validated =  $request->validate([
+        'id_mail' => 'required|integer',
+    ]);
+      $userId = $validated['id_mail'];
+      
+        $mail = Mailings::where('idUser', $userId)->first();
+        if ($mail) {
+            $mail->update([
+                'isValidated' => true,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Post validé avec succès',
+                'status' => 200,
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post non trouvé',
+                'status' => 404,
+            ], 404);
+        }
+    }
+    public function publishedMail(Request $request){
+    $validated =  $request->validate([
+        'id_mail' => 'required|integer',
+    ]);
+      $userId = $validated['id_mail'];
+     
+        $mail = Mailings::where('idUser', $userId)->first();
+        if ($mail) {
+            $mail->update([
+                'isPublished' => true,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Post publié avec succès',
+                'status' => 200,
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post non trouvé',
+                'status' => 404,
+            ], 404);
+        }
+    }
 }
