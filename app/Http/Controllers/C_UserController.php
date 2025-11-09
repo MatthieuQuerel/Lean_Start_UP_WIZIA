@@ -52,10 +52,10 @@ class C_UserController extends Controller
   // Ajouter un utilisateur notre client
   public function register(Request $request)
   {
-    // try {
+  
     $request->validate([
-      'first_name' => 'required',
-      'last_name' => 'required',
+  
+      'name' => 'required',
       'email' => 'required|email|unique:users',
       'activity' => 'required',
       'password' => 'required',
@@ -68,8 +68,8 @@ class C_UserController extends Controller
 
 
     $user = new User();
-    $user->first_name = $request->first_name;
-    $user->last_name = $request->last_name;
+    
+    $user->name = $request->name;
     $user->email = $request->email;
     $user->password = Hash::make($request->password);
     $user->phone = $request->phone;
@@ -91,13 +91,6 @@ class C_UserController extends Controller
     $generation->dateFin = date('Y-m-t');
     $generation->save();
     return response()->json(['user' => $user, 'token' => $token], 200);
-    // } catch (\Exception $e) {
-    //   return response()->json([
-    //     'message' => 'Erreur lors de l\'ajout de l\'utilisateur',
-    //     'error' => $e->getMessage()
-    //   ], 500);
-    // }
-
   }
   public function GetAuthenticatedUser(Request $request)
   {
@@ -131,10 +124,9 @@ class C_UserController extends Controller
         return response()->json(['message' => 'Utilisateur non trouvé'], 404);
       }
 
-      $user->last_name = $request->last_name;
       $user->email = $request->email;
       $user->number = $request->number;
-      $user->first_name = $request->first_name;
+      $user->name = $request->name;
       if ($user->password !== null && $request->has('password')) {
         $user->password = Hash::make($request->password);
       }
@@ -171,12 +163,6 @@ class C_UserController extends Controller
       ]);
       $image = $request->file('file');
       $imagePath = $image->store('logo', 'public');
-
-      // $pieceJointe = new PieceJointes();
-      // $pieceJointe->path = $imagePath;
-      // $pieceJointe->type = $request->type; 
-      // $pieceJointe->idUser = $request->id; 
-      // $pieceJointe->save();
 
       return response()->json([
         'message' => 'Image uploadée et enregistrée avec succès',
