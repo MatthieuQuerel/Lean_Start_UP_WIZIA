@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class C_MailController extends Controller
 {
+ 
   private $mail;
 
   public function __construct($debug = false)

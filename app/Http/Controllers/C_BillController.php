@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-require('../../../vendor/autoload.php');
-use App\Http\Controllers\Controller; 
 use Illuminate\Http\Request;
-use App\Services\FacturePDF;
 
 class C_BillController extends Controller
 {
@@ -18,7 +15,7 @@ class C_BillController extends Controller
 
         $articles = $request->input('articles');
 
-        $facture = new FacturePDF();
+        $facture = new C_BillCreate();
         $facture->createBill($client, $articles);
 
         return response()->json(['message' => 'Facture générée avec succès']);
