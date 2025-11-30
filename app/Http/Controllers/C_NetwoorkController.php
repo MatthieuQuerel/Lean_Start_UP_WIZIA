@@ -49,7 +49,7 @@ class C_NetwoorkController extends Controller
         'post' => 'required|string',
         'titrePost' => 'nullable|string',
         'file' => 'required|string',
-        'id_post' => 'nullable|string', 
+        'id_post' => 'nullable|integer', 
         'now' => 'nullable|boolean',
         'date' => 'nullable|date',
         'network' => 'required|string|in:facebook,instagram,linkedin',
@@ -105,55 +105,61 @@ class C_NetwoorkController extends Controller
 public function createAndPublishPostPictureFacebook(Request $request)
 {
     $titrePost = $request->input('titrePost');
-    $post = $request->input('post');
+    $postContent = $request->input('post');
     $file = $request->input('file');
-    $idPostBDD = $request->input('id_post'); 
-    $datePost = $request->input('date'); 
+    $idPostBDD = $request->input('id_post');
+    $datePost = $request->input('date');
     $sendNow = $request->boolean('now');
-    $userId = $request->input('idUser'); 
+    $userId = $request->input('idUser');
 
-    $postContent =  trim(($titrePost ? $titrePost . "\n" : "") . $post);
+    $fullPost = trim(($titrePost ? $titrePost . "\n" : "") . $postContent);
 
     if ($sendNow) {
         $data = [
-             "Post" => $postContent,
-             "File" => $file,
+            "Post" => $fullPost,
+            "File" => $file,
         ];
-   
 
-         // Envoi direct à Make pour publication Facebook
         $url = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'x-make-apikey' => env("KeyMake")
-            ])->post($url, $data);
+        ])->post($url, $data);
 
-        $idPostNetwork = $response->body(); // ID retourné par MAKE
+        $idPostNetwork = $response->body();
 
         if ($idPostBDD !== null) {
-            $req = new Request([
-                "id_post" => $idPostNetwork  
-            ]);
-            $this->publishedPosts($req);
-
-        } else {
-           
-            $reqAdd = new Request([
-                "post" => $post,
+            $reqUpdate = new Request([
+                "id" => $idPostBDD,
+                "post" => $postContent,
                 "url" => $file,
                 "titre_post" => $titrePost ?: "Sans titre",
                 "date" => $datePost,
                 "network" => "facebook",
                 "idPostNetwork" => $idPostNetwork
             ]);
-            $this->addPosts($reqAdd, $userId);
-            $req = new Request([
-                "id_post" => $idPostNetwork  
+
+            $postResponse = $this->updatePosts($reqUpdate, $userId);
+        } else {
+            $reqAdd = new Request([
+                "post" => $postContent,
+                "url" => $file,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "facebook",
+                "idPostNetwork" => $idPostNetwork
             ]);
-            $this->publishedPosts($req);
-            
+
+            $postResponse = $this->addPosts($reqAdd, $userId);
         }
+
+        // Récupérer l'ID depuis la réponse JsonResponse
+        $postData = $postResponse->getData(true);
+        $postId = $postData['id'] ?? null;
+
+        $req = new Request(["id_post" => $postId]);
+        $this->publishedPosts($req);
 
         return response()->json([
             "success" => $response->successful(),
@@ -166,9 +172,8 @@ public function createAndPublishPostPictureFacebook(Request $request)
         ]);
     }
 
-    // CAS : poster plus tard
     $reqAddLater = new Request([
-        "post" => $post,
+        "post" => $postContent,
         "url" => $file,
         "titre_post" => $titrePost ?: "Sans titre",
         "date" => $datePost ?? now(),
@@ -176,8 +181,14 @@ public function createAndPublishPostPictureFacebook(Request $request)
         "idPostNetwork" => ""
     ]);
 
-    return $this->addPosts($reqAddLater, $userId);
+    if ($idPostBDD) {
+        return $this->updatePosts($reqAddLater, $userId);
+    } else {
+        return $this->addPosts($reqAddLater, $userId);
+    }
 }
+
+
 
 
 
@@ -452,30 +463,58 @@ if($id_post!= null){
             ], 404);
         }
     }
-    public function publishedPosts(Request $request){
-   $validated =  $request->validate([
-        'id_post' => 'required|string',
+    /**
+ * @OA\Post(
+ *     path="/post/published",
+ *     summary="Marquer un post comme publié",
+ *     tags={"Post"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"id_post"},
+ *             @OA\Property(property="id_post", type="string", example="45")
+ *         )
+ *     ),
+ *     @OA\Response(response=200, description="Post marqué comme publié"),
+ *     @OA\Response(response=400, description="ID réseau manquant dans le post"),
+ *     @OA\Response(response=404, description="Post non trouvé"),
+ *     @OA\Response(response=500, description="Erreur server")
+ * )
+ */
+
+   public function publishedPosts(Request $request)
+{
+    $validated = $request->validate([
+        'id_post' => 'required|integer',
     ]);
-      $idPostNetwork = $validated['id_post'];
-    
-        $post = Posts::where('IdpostNetwork', $idPostNetwork)->first();
-        if ($post) {
-            $post->update([
-                'isPublished' => true,
-            ]);
-            return response()->json([
-                'success' => true,
-                'message' => 'Post publié avec succès',
-                'status' => 200,
-            ], 200);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Post non trouvé',
-                'status' => 404,
-            ], 404);
-        }
+
+    $post = Posts::find($validated['id_post']);
+
+    if (!$post) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Post non trouvé',
+            'status' => 404,
+        ], 404);
     }
+
+    if (empty($post->IdpostNetwork)) {
+        return response()->json([
+            'success' => false,
+            'message' => "Le post n'a pas d'ID réseau associé.",
+            'status' => 400,
+        ], 400);
+    }
+
+    $post->update(['isPublished' => true]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Post publié avec succès',
+        'status' => 200,
+    ], 200);
+}
+
     /**
  * @OA\Post(
  *     path="/post/addPosts/{idUser}",
@@ -531,7 +570,7 @@ public function addPosts(Request $request, $idUser)
         $titrePost = $validated['titre_post'];
         $postData = $validated['post'];
         $network = $validated['network'];
-        $idPostNetwork = $validated['idPostNetwork'] ?: "";
+        $idPostNetwork = $validated['idPostNetwork'] ?? '';
         $datePost = $validated['date'] ?? date('Y-m-d H:i:s');
 
         $userId = Auth::id() ?? $idUser;
@@ -555,7 +594,8 @@ public function addPosts(Request $request, $idUser)
             'success' => true,
             'message' => 'Post ajouté avec succès',
             'user' => $userId,
-            'tabListe' => [$post],
+            'id' => $post->id,
+            'post' => $post,
             'status' => 200,
         ], 200);
 
@@ -566,6 +606,101 @@ public function addPosts(Request $request, $idUser)
         ], 500);
     }
 }
+
+/**
+ * @OA\Put(
+ *     path="/posts/update/{idUser}",
+ *     summary="Modifier un post existant",
+ *     tags={"Post"},
+ *     @OA\Parameter(
+ *         name="idUser",
+ *         in="path",
+ *         required=true,
+ *         description="ID de l'utilisateur",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"post", "url", "titre_post", "date", "network"},
+ *             @OA\Property(property="post", type="string", example="Nouveau contenu du post"),
+ *             @OA\Property(property="url", type="string", format="url", example="https://image.com/photo.jpg"),
+ *             @OA\Property(property="titre_post", type="string", example="Titre modifié"),
+ *             @OA\Property(property="date", type="string", format="date", example="2025-10-12"),
+ *             @OA\Property(property="network", type="string", enum={"facebook","instagram","linkedin"}, example="facebook"),
+ *             @OA\Property(property="idPostNetwork", type="string", nullable=true, example="FB_123456")
+ *         )
+ *     ),
+ *     @OA\Response(response=200, description="Post modifié avec succès"),
+ *     @OA\Response(response=400, description="Erreur de validation ou ID utilisateur invalide"),
+ *     @OA\Response(response=404, description="Post introuvable"),
+ *     @OA\Response(response=500, description="Erreur serveur")
+ * )
+ */
+
+public function updatePosts(Request $request, $idUser)
+{
+    try {
+
+        if (!is_numeric($idUser)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ID utilisateur invalide'
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'id' => 'required|integer',  // ID du post à modifier
+            'post' => 'required|string',
+            'url' => 'required|url',
+            'titre_post' => 'required|string',
+            'date' => 'required|date',
+            'network' => 'required|in:facebook,linkedin,instagram',
+            'idPostNetwork' => 'nullable|string'
+        ]);
+
+        $postId = $validated['id'];
+
+        $post = Posts::where('id', $postId)->first();
+
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => "Post introuvable"
+            ], 404);
+        }
+
+        $post->update([
+            'datePost' => $validated['date'] ?? date('Y-m-d H:i:s'),
+            'idUser' => $idUser,
+            'isValidated' => false,
+            'isPublished' => false,
+            'network' => $validated['network'],
+            'url' => $validated['url'],
+            'titrePost' => $validated['titre_post'],
+            'post' => $validated['post'],
+            'IdpostNetwork' => $validated['idPostNetwork'] ?? "",
+            'postLikeNetwork' => 0,
+            'postCommentaireNetwork' => 0,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post modifié avec succès',
+            'user' => $idUser,
+            'id' => $post->id,
+             'post' => $post,
+            'status' => 200,
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur serveur : ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 /**
  * @OA@Post(
  *     path="/post/listerCommentairesandLikeFacebook",
@@ -892,7 +1027,7 @@ public function listerCommentairesandLikeLinkeding(Request $request)
 public function ListeCommentaireAndLikeNetwork()
 {
     try {
-        // 🔹 Récupère tous les posts
+        
         $posts = Posts::all();
 
         if ($posts->isEmpty()) {
@@ -904,7 +1039,7 @@ public function ListeCommentaireAndLikeNetwork()
 
         $results = [];
 
-        // 🔹 Boucle sur chaque post
+      
         foreach ($posts as $post) {
             $idPost = $post->IdpostNetwork;
             $network = strtolower($post->network);
