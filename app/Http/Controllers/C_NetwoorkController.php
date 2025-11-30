@@ -32,6 +32,7 @@ class C_NetwoorkController extends Controller
  *             @OA\Property(property="date", type="string", format="date", example="2025-08-17"),
  *             @OA\Property(property="network", type="string", enum={"facebook","instagram","linkedin"}, example="facebook"),
  *             @OA\Property(property="idUser", type="integer", example=1)
+ *             @OA\Property(property="isValidated", type="integer", example=1)
  *         )
  *     ),
  *     @OA\Response(
@@ -48,12 +49,13 @@ class C_NetwoorkController extends Controller
     $request->validate([
         'post' => 'required|string',
         'titrePost' => 'nullable|string',
-        'file' => 'required|string',
+        'url' => 'required|string',
         'id_post' => 'nullable|integer', 
         'now' => 'nullable|boolean',
-        'date' => 'nullable|date',
+        'datePost' => 'nullable|date',
         'network' => 'required|string|in:facebook,instagram,linkedin',
         'idUser' => 'required|integer',
+        'isValidated' => 'required|integer|in:0,1',
     ]);
 
     switch ($request->input('network')) {
@@ -106,26 +108,27 @@ public function createAndPublishPostPictureFacebook(Request $request)
 {
     $titrePost = $request->input('titrePost');
     $postContent = $request->input('post');
-    $file = $request->input('file');
+    $url = $request->input('url');
     $idPostBDD = $request->input('id_post');
-    $datePost = $request->input('date');
+    $datePost = $request->input('datePost');
     $sendNow = $request->boolean('now');
     $userId = $request->input('idUser');
+    $isValidated = $request->input('isValidated');
 
     $fullPost = trim(($titrePost ? $titrePost . "\n" : "") . $postContent);
 
     if ($sendNow) {
         $data = [
             "Post" => $fullPost,
-            "File" => $file,
+            "File" => $url,
         ];
 
-        $url = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
+        $urlMake = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'x-make-apikey' => env("KeyMake")
-        ])->post($url, $data);
+        ])->post($urlMake, $data);
 
         $idPostNetwork = $response->body();
 
@@ -133,22 +136,24 @@ public function createAndPublishPostPictureFacebook(Request $request)
             $reqUpdate = new Request([
                 "id" => $idPostBDD,
                 "post" => $postContent,
-                "url" => $file,
+                "url" => $url,
                 "titre_post" => $titrePost ?: "Sans titre",
                 "date" => $datePost,
                 "network" => "facebook",
-                "idPostNetwork" => $idPostNetwork
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
             ]);
 
             $postResponse = $this->updatePosts($reqUpdate, $userId);
         } else {
             $reqAdd = new Request([
                 "post" => $postContent,
-                "url" => $file,
+                "url" => $url,
                 "titre_post" => $titrePost ?: "Sans titre",
                 "date" => $datePost,
                 "network" => "facebook",
-                "idPostNetwork" => $idPostNetwork
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
             ]);
 
             $postResponse = $this->addPosts($reqAdd, $userId);
@@ -174,11 +179,12 @@ public function createAndPublishPostPictureFacebook(Request $request)
 
     $reqAddLater = new Request([
         "post" => $postContent,
-        "url" => $file,
+        "url" => $url,
         "titre_post" => $titrePost ?: "Sans titre",
         "date" => $datePost ?? now(),
         "network" => "facebook",
-        "idPostNetwork" => ""
+        "idPostNetwork" => "",
+        "isValidated" => $isValidated
     ]);
 
     if ($idPostBDD) {
@@ -440,28 +446,28 @@ if($id_post!= null){
         ], 404);
     }
     public function validatedPosts(Request $request){
-   $validated =  $request->validate([
+
+ $validated = $request->validate([
         'id_post' => 'required|integer',
     ]);
-      $idPostNetwork = $validated['id_post'];
-     $userId = Auth::id() ?? $idPostNetwork;
-        $post = Posts::where('IdpostNetwork', $userId)->first();
-        if ($post) {
-            $post->update([
-                'isValidated' => true,
-            ]);
-            return response()->json([
-                'success' => true,
-                'message' => 'Post validé avec succès',
-                'status' => 200,
-            ], 200);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Post non trouvé',
-                'status' => 404,
-            ], 404);
-        }
+
+    $post = Posts::find($validated['id_post']);
+
+    if (!$post) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Post non trouvé',
+            'status' => 404,
+        ], 404);
+    }
+
+    $post->update(['isValidated' => true]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Post publié avec succès',
+        'status' => 200,
+    ], 200);
     }
     /**
  * @OA\Post(
@@ -562,7 +568,8 @@ public function addPosts(Request $request, $idUser)
             'titre_post' => 'required|string',
             'date' => 'required|date', 
             'network' => 'required|in:facebook,linkedin,instagram',
-            'idPostNetwork' => 'nullable|string'
+            'idPostNetwork' => 'nullable|string',
+            'isValidated' => 'required|integer|in:0,1',
         ]);
 
       
@@ -579,7 +586,7 @@ public function addPosts(Request $request, $idUser)
         $post = Posts::create([
             'datePost' => $datePost,
             'idUser' => $userId,
-            'isValidated' => false,
+            'isValidated' => $validated['isValidated'],
             'isPublished' => false,
             'network' => $network,
             'url' => $url,
@@ -650,13 +657,14 @@ public function updatePosts(Request $request, $idUser)
         }
 
         $validated = $request->validate([
-            'id' => 'required|integer',  // ID du post à modifier
+            'id' => 'required|integer',  
             'post' => 'required|string',
             'url' => 'required|url',
             'titre_post' => 'required|string',
             'date' => 'required|date',
             'network' => 'required|in:facebook,linkedin,instagram',
-            'idPostNetwork' => 'nullable|string'
+            'idPostNetwork' => 'nullable|string',
+            'isValidated' => 'required|integer|in:0,1',
         ]);
 
         $postId = $validated['id'];
@@ -673,7 +681,7 @@ public function updatePosts(Request $request, $idUser)
         $post->update([
             'datePost' => $validated['date'] ?? date('Y-m-d H:i:s'),
             'idUser' => $idUser,
-            'isValidated' => false,
+            'isValidated' => $validated['isValidated'],
             'isPublished' => false,
             'network' => $validated['network'],
             'url' => $validated['url'],
