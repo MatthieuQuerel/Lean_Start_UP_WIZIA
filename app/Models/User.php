@@ -31,7 +31,7 @@ class User extends Authenticatable
     'description',
     'companyName',
     'tone',
-    'goal',
+    'call',
   ];
 
   /**

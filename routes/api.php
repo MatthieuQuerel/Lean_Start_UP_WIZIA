@@ -26,6 +26,7 @@ Route::group(['prefix' => '/users'], function () {
 });
 Route::group(['prefix' => "/post"], function () {
   Route::name('post.')->controller(C_NetwoorkController::class)->group(function () {
+    Route::post('/', 'createPublishPost')->name('createPublishPost'); // envoie post sur network
     Route::post('/Facebook', 'createAndPublishPostPictureFacebook')->name('createAndPublishPostPictureFacebook');
     Route::post('/Instagrame', 'createAndPublishPostInstagramePicture')->name('createAndPublishPostInstagramePicture');
     Route::post('/Linkeding', 'createAndPublishPostPictureLinkeding')->name('createAndPublishPostPictureLinkeding');

@@ -98,8 +98,8 @@ class C_UserController extends Controller
  *             @OA\Property(property="password", type="string", format="password", example="secret123"),
  *             @OA\Property(property="password_confirmation", type="string", format="password", example="secret123"),
  *             @OA\Property(property="phone", type="string", example="0601020304"),
- *             @OA\Property(property="logo", type="string", example="data:image/png;base64,..."),
  *             @OA\Property(property="color", type="string", example="#FF5733"),
+ *             @OA\Property(property="logo", type="string", example="https://example.com/logo.png"),
  *             @OA\Property(property="description", type="string", example="Description du profil"),
  *             @OA\Property(property="tone", type="string", example="Familier"),
  *             @OA\Property(property="goal", type="string", example="Vendre mes produits")
@@ -145,7 +145,7 @@ class C_UserController extends Controller
     $user->description = $request->description;
     $user->companyName = $request->companyName;
     $user->tone = $request->tone;
-    $user->goal = $request->goal;
+    $user->call = $request->call;
     $user->idAbonnement = '1';
     $user->save();
     $token = $user->createToken('auth_token')->plainTextToken;
@@ -235,7 +235,8 @@ class C_UserController extends Controller
  *             @OA\Property(property="description", type="string", example="description"),
  *             @OA\Property(property="companyName", type="string", example="WIZIA"),
  *             @OA\Property(property="tone", type="string", example="Familier"),
- *             @OA\Property(property="goal", type="string", example="Vendre mes produits")
+ *             @OA\Property(property="goal", type="string", example="Vendre mes produits"),
+ *             @OA\Property(property="logo", type="string", example="https://example.com/logo.png"),
  *         )
  *     ),
  *     @OA\Response(response=200, description="Utilisateur mis à jour avec succès"),
@@ -259,10 +260,13 @@ class C_UserController extends Controller
       $user->name = $request->name;
       $user->activity = $request->activity;
       $user->color = $request->color;
+      $user->logo = $request->logo;
       $user->description = $request->description;
       $user->companyName = $request->companyName;
       $user->tone = $request->tone;
       $user->goal = $request->goal;
+      $user->logo = $request->logo;
+      //
       if ($user->password !== null && $request->has('password')) {
         $user->password = Hash::make($request->password);
       }

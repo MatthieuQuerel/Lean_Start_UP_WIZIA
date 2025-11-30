@@ -15,8 +15,66 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class C_NetwoorkController extends Controller
 {
+/**
+ * @OA\Post(
+ *     path="/post",
+ *     summary="Créer et publier un post sur un réseau social",
+ *     tags={"Post"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"post","file","network","idUser"},
+ *             @OA\Property(property="post", type="string", example="Mon texte de post"),
+ *             @OA\Property(property="titrePost", type="string", example="Titre optionnel"),
+ *             @OA\Property(property="file", type="string", example="https://images.unsplash.com/photo-12345"),
+ *             @OA\Property(property="id_post", type="integer", nullable=true, example=1),
+ *             @OA\Property(property="now", type="boolean", example=true),
+ *             @OA\Property(property="date", type="string", format="date", example="2025-08-17"),
+ *             @OA\Property(property="network", type="string", enum={"facebook","instagram","linkedin"}, example="facebook"),
+ *             @OA\Property(property="idUser", type="integer", example=1)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Post traité avec succès et envoyé au réseau sélectionné"
+ *     ),
+ *     @OA\Response(response=400, description="Réseau social non supporté ou validation échouée"),
+ *     @OA\Response(response=500, description="Erreur interne serveur")
+ * )
+ */
+    public function createPublishPost(Request $request)
+{
 
-    /**
+    $request->validate([
+        'post' => 'required|string',
+        'titrePost' => 'nullable|string',
+        'file' => 'required|string',
+        'id_post' => 'nullable|string', 
+        'now' => 'nullable|boolean',
+        'date' => 'nullable|date',
+        'network' => 'required|string|in:facebook,instagram,linkedin',
+        'idUser' => 'required|integer',
+    ]);
+
+    switch ($request->input('network')) {
+        case 'facebook':
+            return $this->createAndPublishPostPictureFacebook($request);
+
+        case 'instagram':
+            return $this->createAndPublishPostInstagramePicture($request);
+
+        case 'linkedin':
+            return $this->createAndPublishPostPictureLinkeding($request);
+
+        default:
+            return response()->json([
+                'success' => false,
+                'message' => 'Réseau social non supporté',
+            ], 400);
+    }
+}
+
+        /**
  * @OA\Post(
  *     path="/post/Facebook",
  *     summary="Publier un post image sur Facebook",
@@ -24,59 +82,160 @@ class C_NetwoorkController extends Controller
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"post", "file"},
- *             @OA\Property(property="post", type="string", example="Mon texte de post"),
- *             @OA\Property(property="file", type="string", example="data:image/png;base64,..."),
- *             @OA\Property(property="id_post", type="integer", example=15)
+ *             required={"post","file"},
+ *             @OA\Property(property="post", type="string", example="Mon texte de post Facebook"),
+ *             @OA\Property(property="titrePost", type="string", example="Titre optionnel"),
+ *             @OA\Property(property="file", type="string", example="https://images.unsplash.com/photo-12345"),
+ *             @OA\Property(property="id_post", type="integer", nullable=true, example=1),
+ *             @OA\Property(property="now", type="boolean", example=true),
+ *             @OA\Property(property="date", type="string", format="date", example="2025-08-17"),
+ *             @OA\Property(property="idUser", type="integer", example=1)
  *         )
  *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Publication envoyée à Facebook via Make.com"
  *     ),
+ *     @OA\Response(response=400, description="Validation échouée ou données invalides"),
+ *     @OA\Response(response=401, description="Non autorisé (clé Make invalide)"),
+ *     @OA\Response(response=404, description="Post non trouvé lors de la mise à jour"),
  *     @OA\Response(response=500, description="Erreur interne serveur")
  * )
  */
-
- public function createAndPublishPostPictureFacebook(Request $request)
+public function createAndPublishPostPictureFacebook(Request $request)
 {
-    $request->validate([
-        'post' => 'required',
-        'file' => 'required',
-        'id_post' => 'nullable|integer',
-    ]);
+    $titrePost = $request->input('titrePost');
+    $post = $request->input('post');
+    $file = $request->input('file');
+    $idPostBDD = $request->input('id_post'); 
+    $datePost = $request->input('date'); 
+    $sendNow = $request->boolean('now');
+    $userId = $request->input('idUser'); 
 
-    $postData = $request->input('post');
-    $fileData = $request->input('file');
-$id_post = $request->input('id_post');
+    $postContent =  trim(($titrePost ? $titrePost . "\n" : "") . $post);
 
+    if ($sendNow) {
         $data = [
-            "Post" => $postData,
-            "File" => $fileData,
+             "Post" => $postContent,
+             "File" => $file,
         ];
+   
 
-        // Envoi direct à Make pour publication Facebook
+         // Envoi direct à Make pour publication Facebook
         $url = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'x-make-apikey' => env("KeyMake"),
-        ])->post($url, $data);
-        
-        if($id_post!= null){
-        $request = new \Illuminate\Http\Request();
-        $request->merge(['id_post' => $id_post]);
-        $this->publishedPosts($request);  
+            'x-make-apikey' => env("KeyMake")
+            ])->post($url, $data);
+
+        $idPostNetwork = $response->body(); // ID retourné par MAKE
+
+        if ($idPostBDD !== null) {
+            $req = new Request([
+                "id_post" => $idPostNetwork  
+            ]);
+            $this->publishedPosts($req);
+
+        } else {
+           
+            $reqAdd = new Request([
+                "post" => $post,
+                "url" => $file,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "facebook",
+                "idPostNetwork" => $idPostNetwork
+            ]);
+            $this->addPosts($reqAdd, $userId);
+            $req = new Request([
+                "id_post" => $idPostNetwork  
+            ]);
+            $this->publishedPosts($req);
+            
         }
+
         return response()->json([
-            'success' => $response->successful(),
-            'status' => $response->status(),
-            'message' => $response->successful()
-                ? 'Publication Facebook envoyée avec succès'
-                : 'Erreur lors de l’envoi à Facebook',
-            'response' => $response->json(),
+            "success" => $response->successful(),
+            "status" => $response->status(),
+            "message" => $response->successful()
+                ? "Publication Facebook envoyée & post mis à jour"
+                : "Erreur lors de l’envoi à Facebook",
+            "idPostNetwork" => $idPostNetwork,
+            "makeResponse" => $response->json(),
         ]);
     }
+
+    // CAS : poster plus tard
+    $reqAddLater = new Request([
+        "post" => $post,
+        "url" => $file,
+        "titre_post" => $titrePost ?: "Sans titre",
+        "date" => $datePost ?? now(),
+        "network" => "facebook",
+        "idPostNetwork" => ""
+    ]);
+
+    return $this->addPosts($reqAddLater, $userId);
+}
+
+
+
+//  public function createAndPublishPostPictureFacebook(Request $request)
+// {
+//     $request->validate([
+//         'post' => 'required',
+//         'titrePost' => 'nullable|string',
+//         'file' => 'required',
+//         'id_post' => 'nullable|integer',
+//         'sendNow' => 'nullable|boolean',
+//         'datePost' => 'nullable|boolean',// enregisté mais post non envoyé tout de suite
+//     ]);
+
+//     $TitrepostData = $request->input('titrePost');
+//     $postData = $request->input('post');
+//     $fileData = $request->input('file');
+//     $id_postBDD = $request->input('id_post'); 
+//     $sendNow  = $request->input('sendNow');
+//     $postData = $TitrepostData . "\n" . $postData;
+    
+//     if($sendNow == true){
+//         $data = [
+//             "Post" => $postData,
+//             "File" => $fileData,
+//         ];
+        
+//         // Envoi direct à Make pour publication Facebook
+//         $url = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
+//         $response = Http::withHeaders([
+//             'Content-Type' => 'application/json',
+//             'Accept' => 'application/json',
+//             'x-make-apikey' => env("KeyMake"),
+//             ])->post($url, $data);
+//             // recupérer la réponse de Make et retourner mettre a jour idPostNetwork en BDD et isPublished a true
+//             response()->json([
+//                 'status' => $response->status(),
+//                 'idPoste' => $response->body(),
+//             ]);
+//             if($id_postBDD!= null){
+//                 // mettre à jour le poste en BDD 
+//             $request = new \Illuminate\Http\Request();
+//             $request->merge(['id_post' => $id_postBDD]);
+//             $request->merge(['IdpostNetwork' => $id_postBDD]);
+//             $this->publishedPosts($request);
+//             }else{
+//               // enregistre  en BDD   le poste
+//             }
+//         }
+//         return response()->json([
+//             'success' => $response->successful(),
+//             'status' => $response->status(),
+//             'message' => $response->successful()
+//                 ? 'Publication Facebook envoyée avec succès'
+//                 : 'Erreur lors de l’envoi à Facebook',
+//             'response' => $response->json(),
+//         ]);
+//     }
 
 /**
  * @OA\Post(
@@ -101,8 +260,13 @@ $id_post = $request->input('id_post');
     $request->validate([
       'post' => 'required',
       'file' => 'required',
+      'titrePost' => 'nullable|string',
       'id_post' => 'nullable|integer',
+      'sendNow' => 'nullable|boolean',
+    'datePost' => 'nullable|date',
+      'network' => 'required|string|in:facebook,instagram,linkedin',
     ]);
+    
 
     $postData = $request->input('post');
     $filsData = $request->input('file');
@@ -157,13 +321,13 @@ public function createAndPublishPostPictureLinkeding(Request $request)
   $request->validate([
       'post' => 'required',
       'file' => 'required',
-      'titre_post' => 'required',
+      'titrePost' => 'required',
       'id_post' => 'nullable|integer',
     ]);
 
     
     $FileData = $request->input('file');
-    $Titre_PostData = $request->input('titre_post');
+    $Titre_PostData = $request->input('titrePost');
     $postData = $request->input('post');
     $id_post = $request->input('id_post');
        $data = [
@@ -290,11 +454,11 @@ if($id_post!= null){
     }
     public function publishedPosts(Request $request){
    $validated =  $request->validate([
-        'id_post' => 'required|integer',
+        'id_post' => 'required|string',
     ]);
       $idPostNetwork = $validated['id_post'];
-     $userId = Auth::id() ?? $idPostNetwork;
-        $post = Posts::where('IdpostNetwork', $userId)->first();
+    
+        $post = Posts::where('IdpostNetwork', $idPostNetwork)->first();
         if ($post) {
             $post->update([
                 'isPublished' => true,
@@ -359,7 +523,7 @@ public function addPosts(Request $request, $idUser)
             'titre_post' => 'required|string',
             'date' => 'required|date', 
             'network' => 'required|in:facebook,linkedin,instagram',
-            'idPostNetwork' => 'required|string'
+            'idPostNetwork' => 'nullable|string'
         ]);
 
       
@@ -367,7 +531,7 @@ public function addPosts(Request $request, $idUser)
         $titrePost = $validated['titre_post'];
         $postData = $validated['post'];
         $network = $validated['network'];
-        $idPostNetwork = $validated['idPostNetwork'];
+        $idPostNetwork = $validated['idPostNetwork'] ?: "";
         $datePost = $validated['date'] ?? date('Y-m-d H:i:s');
 
         $userId = Auth::id() ?? $idUser;
