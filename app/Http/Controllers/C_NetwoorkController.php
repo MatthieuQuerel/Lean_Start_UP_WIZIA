@@ -195,65 +195,6 @@ public function createAndPublishPostPictureFacebook(Request $request)
 }
 
 
-
-
-
-//  public function createAndPublishPostPictureFacebook(Request $request)
-// {
-//     $request->validate([
-//         'post' => 'required',
-//         'titrePost' => 'nullable|string',
-//         'file' => 'required',
-//         'id_post' => 'nullable|integer',
-//         'sendNow' => 'nullable|boolean',
-//         'datePost' => 'nullable|boolean',// enregisté mais post non envoyé tout de suite
-//     ]);
-
-//     $TitrepostData = $request->input('titrePost');
-//     $postData = $request->input('post');
-//     $fileData = $request->input('file');
-//     $id_postBDD = $request->input('id_post'); 
-//     $sendNow  = $request->input('sendNow');
-//     $postData = $TitrepostData . "\n" . $postData;
-    
-//     if($sendNow == true){
-//         $data = [
-//             "Post" => $postData,
-//             "File" => $fileData,
-//         ];
-        
-//         // Envoi direct à Make pour publication Facebook
-//         $url = 'https://hook.eu2.make.com/umhsf8kaax437qklfxrf7oechd4hp3qk';
-//         $response = Http::withHeaders([
-//             'Content-Type' => 'application/json',
-//             'Accept' => 'application/json',
-//             'x-make-apikey' => env("KeyMake"),
-//             ])->post($url, $data);
-//             // recupérer la réponse de Make et retourner mettre a jour idPostNetwork en BDD et isPublished a true
-//             response()->json([
-//                 'status' => $response->status(),
-//                 'idPoste' => $response->body(),
-//             ]);
-//             if($id_postBDD!= null){
-//                 // mettre à jour le poste en BDD 
-//             $request = new \Illuminate\Http\Request();
-//             $request->merge(['id_post' => $id_postBDD]);
-//             $request->merge(['IdpostNetwork' => $id_postBDD]);
-//             $this->publishedPosts($request);
-//             }else{
-//               // enregistre  en BDD   le poste
-//             }
-//         }
-//         return response()->json([
-//             'success' => $response->successful(),
-//             'status' => $response->status(),
-//             'message' => $response->successful()
-//                 ? 'Publication Facebook envoyée avec succès'
-//                 : 'Erreur lors de l’envoi à Facebook',
-//             'response' => $response->json(),
-//         ]);
-//     }
-
 /**
  * @OA\Post(
  *     path="/post/Instagrame",
@@ -274,43 +215,131 @@ public function createAndPublishPostPictureFacebook(Request $request)
  */
 
   public function createAndPublishPostInstagramePicture(Request $request){
-    $request->validate([
-      'post' => 'required',
-      'file' => 'required',
-      'titrePost' => 'nullable|string',
-      'id_post' => 'nullable|integer',
-      'sendNow' => 'nullable|boolean',
-    'datePost' => 'nullable|date',
-      'network' => 'required|string|in:facebook,instagram,linkedin',
+
+    $titrePost = $request->input('titrePost');
+    $postContent = $request->input('post');
+    $url = $request->input('url');
+    $idPostBDD = $request->input('id_post');
+    $datePost = $request->input('datePost');
+    $sendNow = $request->boolean('now');
+    $userId = $request->input('idUser');
+    $isValidated = $request->input('isValidated');
+
+    $fullPost = trim(($titrePost ? $titrePost . "\n" : "") . $postContent);
+
+    if ($sendNow) {
+        $data = [
+            "Post" => $fullPost,
+            "File" => $url,
+        ];
+
+        $urlMake = 'https://hook.eu2.make.com/yf7x5kaq33anvdw12qrtykvxye4xvos9';
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'x-make-apikey' => env("KeyMake")
+        ])->post($urlMake, $data);
+
+        $idPostNetwork = $response->body();
+
+        if ($idPostBDD !== null) {
+            $reqUpdate = new Request([
+                "id" => $idPostBDD,
+                "post" => $postContent,
+                "url" => $url,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "instagram",
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
+            ]);
+
+            $postResponse = $this->updatePosts($reqUpdate, $userId);
+        } else {
+            $reqAdd = new Request([
+                "post" => $postContent,
+                "url" => $url,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "instagram",
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
+            ]);
+
+            $postResponse = $this->addPosts($reqAdd, $userId);
+        }
+
+        // Récupérer l'ID depuis la réponse JsonResponse
+        $postData = $postResponse->getData(true);
+        $postId = $postData['id'] ?? null;
+
+        $req = new Request(["id_post" => $postId]);
+        $this->publishedPosts($req);
+
+        return response()->json([
+            "success" => $response->successful(),
+            "status" => $response->status(),
+            "message" => $response->successful()
+                ? "Publication instagram envoyée & post mis à jour"
+                : "Erreur lors de l’envoi à instagram",
+            "idPostNetwork" => $idPostNetwork,
+            "makeResponse" => $response->json(),
+        ]);
+    }
+
+    $reqAddLater = new Request([
+        "post" => $postContent,
+        "url" => $url,
+        "titre_post" => $titrePost ?: "Sans titre",
+        "date" => $datePost ?? now(),
+        "network" => "instagram",
+        "idPostNetwork" => "",
+        "isValidated" => $isValidated
     ]);
+
+    if ($idPostBDD) {
+        return $this->updatePosts($reqAddLater, $userId);
+    } else {
+        return $this->addPosts($reqAddLater, $userId);
+    }
+
+//     $request->validate([
+//       'post' => 'required',
+//       'file' => 'required',
+//       'titrePost' => 'nullable|string',
+//       'id_post' => 'nullable|integer',
+//       'sendNow' => 'nullable|boolean',
+//     'datePost' => 'nullable|date',
+//       'network' => 'required|string|in:facebook,instagram,linkedin',
+//     ]);
     
 
-    $postData = $request->input('post');
-    $filsData = $request->input('file');
-$id_post = $request->input('id_post');
-      $data = [
-        "Post" => $postData,
-        "File" => $filsData
-      ];
+//     $postData = $request->input('post');
+//     $filsData = $request->input('file');
+// $id_post = $request->input('id_post');
+//       $data = [
+//         "Post" => $postData,
+//         "File" => $filsData
+//       ];
        
-      // Envoyer ces données directement à Make.com
-      $url = 'https://hook.eu2.make.com/yf7x5kaq33anvdw12qrtykvxye4xvos9';
-      $response = Http::withHeaders([
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/json',
-        'x-make-apikey' => env("KeyMake")
-      ])->post($url, $data);
+//       // Envoyer ces données directement à Make.com
+//       $url = 'https://hook.eu2.make.com/yf7x5kaq33anvdw12qrtykvxye4xvos9';
+//       $response = Http::withHeaders([
+//         'Content-Type' => 'application/json',
+//         'Accept' => 'application/json',
+//         'x-make-apikey' => env("KeyMake")
+//       ])->post($url, $data);
      
-      if($id_post!= null){
-      $request = new \Illuminate\Http\Request();
-        $request->merge(['id_post' => $id_post]);
-        $this->publishedPosts($request);  
-      }
-      return response()->json([
+//       if($id_post!= null){
+//       $request = new \Illuminate\Http\Request();
+//         $request->merge(['id_post' => $id_post]);
+//         $this->publishedPosts($request);  
+//       }
+//       return response()->json([
        
-        'status' => $response->status(),
-        'idPoste' => $response->body(),
-      ]);
+//         'status' => $response->status(),
+//         'idPoste' => $response->body(),
+//       ]);
     
   }
   /**
@@ -335,47 +364,135 @@ $id_post = $request->input('id_post');
 
 public function createAndPublishPostPictureLinkeding(Request $request)
 {
-  $request->validate([
-      'post' => 'required',
-      'file' => 'required',
-      'titrePost' => 'required',
-      'id_post' => 'nullable|integer',
-    ]);
+    $titrePost = $request->input('titrePost');
+    $postContent = $request->input('post');
+    $url = $request->input('url');
+    $idPostBDD = $request->input('id_post');
+    $datePost = $request->input('datePost');
+    $sendNow = $request->boolean('now');
+    $userId = $request->input('idUser');
+    $isValidated = $request->input('isValidated');
 
     
-    $FileData = $request->input('file');
-    $Titre_PostData = $request->input('titrePost');
-    $postData = $request->input('post');
-    $id_post = $request->input('id_post');
-       $data = [
 
-            "Titre_Post" => $Titre_PostData,
-            "File" => $FileData,
-            "Post" => $postData,
+    if ($sendNow) {
+        $data = [
+            "Titre_Post" => $titrePost,
+            "Post" => $postContent,
+            "File" => $url,
         ];
-        $url = 'https://hook.eu2.make.com/hifthnguoljpbwu3hfbripma447f2f8k';
+
+        $urlMake = 'https://hook.eu2.make.com/hifthnguoljpbwu3hfbripma447f2f8k';
         $response = Http::withHeaders([
-            'Content-Type' => 'application/json', 
+            'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'x-make-apikey' => env("KeyMake")
-        ])->post($url, $data);
-if($id_post!= null){
-          $request = new \Illuminate\Http\Request();
-        $request->merge(['id_post' => $id_post]);
-        $this->publishedPosts($request);  
-} 
+        ])->post($urlMake, $data);
+
+        $idPostNetwork = $response->body();
+
+        if ($idPostBDD !== null) {
+            $reqUpdate = new Request([
+                "id" => $idPostBDD,
+                "post" => $postContent,
+                "url" => $url,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "linkedin",
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
+            ]);
+
+            $postResponse = $this->updatePosts($reqUpdate, $userId);
+        } else {
+            $reqAdd = new Request([
+                "post" => $postContent,
+                "url" => $url,
+                "titre_post" => $titrePost ?: "Sans titre",
+                "date" => $datePost,
+                "network" => "linkedin",
+                "idPostNetwork" => $idPostNetwork,
+                "isValidated" => $isValidated
+            ]);
+
+            $postResponse = $this->addPosts($reqAdd, $userId);
+        }
+
+        // Récupérer l'ID depuis la réponse JsonResponse
+        $postData = $postResponse->getData(true);
+        $postId = $postData['id'] ?? null;
+
+        $req = new Request(["id_post" => $postId]);
+        $this->publishedPosts($req);
+
         return response()->json([
-            'status' => $response->status(),
-            'idPoste' => $response->body(),
-            'data' => $data
-            
+            "success" => $response->successful(),
+            "status" => $response->status(),
+            "message" => $response->successful()
+                ? "Publication linkedin envoyée & post mis à jour"
+                : "Erreur lors de l’envoi à linkedin",
+            "idPostNetwork" => $idPostNetwork,
+            "makeResponse" => $response->json(),
         ]);
+    }
+
+    $reqAddLater = new Request([
+        "post" => $postContent,
+        "url" => $url,
+        "titre_post" => $titrePost ?: "Sans titre",
+        "date" => $datePost ?? now(),
+        "network" => "linkedin",
+        "idPostNetwork" => "",
+        "isValidated" => $isValidated
+    ]);
+
+    if ($idPostBDD) {
+        return $this->updatePosts($reqAddLater, $userId);
+    } else {
+        return $this->addPosts($reqAddLater, $userId);
+    }
+
+//   $request->validate([
+//       'post' => 'required',
+//       'file' => 'required',
+//       'titrePost' => 'required',
+//       'id_post' => 'nullable|integer',
+//     ]);
+
+    
+//     $FileData = $request->input('file');
+//     $Titre_PostData = $request->input('titrePost');
+//     $postData = $request->input('post');
+//     $id_post = $request->input('id_post');
+//        $data = [
+
+//             "Titre_Post" => $Titre_PostData,
+//             "File" => $FileData,
+//             "Post" => $postData,
+//         ];
+//         $url = 'https://hook.eu2.make.com/hifthnguoljpbwu3hfbripma447f2f8k';
+//         $response = Http::withHeaders([
+//             'Content-Type' => 'application/json', 
+//             'Accept' => 'application/json',
+//             'x-make-apikey' => env("KeyMake")
+//         ])->post($url, $data);
+// if($id_post!= null){
+//           $request = new \Illuminate\Http\Request();
+//         $request->merge(['id_post' => $id_post]);
+//         $this->publishedPosts($request);  
+// } 
+//         return response()->json([
+//             'status' => $response->status(),
+//             'idPoste' => $response->body(),
+//             'data' => $data
+            
+//         ]);
         
 
-    return response()->json([
-        'status' => 200,
-        'message' => 'Post correctement plannifié ',
-    ]);
+//     return response()->json([
+//         'status' => 200,
+//         'message' => 'Post correctement plannifié ',
+//     ]);
 }
 /**
  * @OA\Get(
