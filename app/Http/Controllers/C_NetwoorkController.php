@@ -45,7 +45,7 @@ class C_NetwoorkController extends Controller
 {
 
     $request->validate([
-        'post' => 'required|string',
+        'post' => 'required|string|max:5000',
         'titrePost' => 'nullable|string',
         'url' => 'required|string',
         'id_post' => 'nullable|integer', 
@@ -159,8 +159,8 @@ public function createAndPublishPostPictureFacebook(Request $request)
         $postData = $postResponse->getData(true);
         $postId = $postData['id'] ?? null;
 
-        $req = new Request(["id_post" => $postId]);
-        $this->publishedPosts($req);
+        
+        $this->publishedPosts($postId);
 
         return response()->json([
             "success" => $response->successful(),
@@ -276,8 +276,8 @@ public function createAndPublishPostPictureFacebook(Request $request)
         $postData = $postResponse->getData(true);
         $postId = $postData['id'] ?? null;
 
-        $req = new Request(["id_post" => $postId]);
-        $this->publishedPosts($req);
+
+        $this->publishedPosts($postId);
 
         return response()->json([
             "success" => $response->successful(),
@@ -431,8 +431,8 @@ public function createAndPublishPostPictureLinkeding(Request $request)
         $postData = $postResponse->getData(true);
         $postId = $postData['id'] ?? null;
 
-        $req = new Request(["id_post" => $postId]);
-        $this->publishedPosts($req);
+        
+        $this->publishedPosts($postId);
 
         return response()->json([
             "success" => $response->successful(),
@@ -614,15 +614,11 @@ public function createAndPublishPostPictureLinkeding(Request $request)
  * )
  */
 
-   public function publishedPosts(Request $request)
-{
-    $validated = $request->validate([
-        'id_post' => 'required|integer',
-    ]);
+   public function publishedPosts($postId)
+    {
+    $post = Posts::find($postId);
 
-    $post = Posts::find($validated['id_post']);
-
-    if (!$post) {
+    if (!$post) { 
         return response()->json([
             'success' => false,
             'message' => 'Post non trouvé',
