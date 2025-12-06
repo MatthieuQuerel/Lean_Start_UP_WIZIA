@@ -164,12 +164,11 @@ class C_IAController extends Controller
     }
     $imageName = uniqid('img_') . '.' . $extension;
 
-    $savePath = storage_path('app/public/posts/' . $imageName);
+    $savePath = storage_path('app/public/NetworkPicture/' . $imageName);
 
     file_put_contents($savePath, $imageContent);
 
-    $url = env('APP_URL') . '/storage/posts/' . $imageName;
-
+    $url = env('APP_URL') . '/storage/NetworkPicture/' . $imageName;
     return response()->json(['image_url' => $url]);
     } else {
         return response()->json(['error' => 'Image non générée', 'details' => $decodeJson], 500);
