@@ -272,6 +272,18 @@ public function generatpromptgemini(Request $request)
         ]
     ]);
 
+    // Ensure key is loaded
+    if (empty($this->keyApigemini)) {
+        $this->keyApigemini = env('KEY_API_GEMINI');
+    }
+
+    if (empty($this->keyApigemini)) {
+        return response()->json(['error' => 'Erreur configuration : La clé API Gemini (KEY_API_GEMINI) est manquante.'], 500);
+    }
+
+    // Reconstruct URL to ensure key is present
+    $this->geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $this->keyApigemini;
+
     $ch = curl_init($this->geminiApiUrl);
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -295,7 +307,10 @@ public function generatpromptgemini(Request $request)
     $decoded = json_decode($response, true);
 
     if (!isset($decoded['candidates'])) {
-        return response()->json(['error' => 'Erreur de la génération du prompt Gemini'], 500);
+        return response()->json([
+            'error' => 'Erreur de la génération du prompt Gemini',
+            'details' => $decoded
+        ], 500);
     }
 
     $text = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
