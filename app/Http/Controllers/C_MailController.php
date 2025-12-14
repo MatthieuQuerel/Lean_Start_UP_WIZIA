@@ -45,11 +45,9 @@ class C_MailController extends Controller
     $this->mail->Password = env('MAIL_PASSWORD');
     $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
   }
- public function addAttachment($mail, $filePath, $fileName)
+ public function addAttachment($mail, $content, $fileName)
 {
-    if (file_exists($filePath)) {
-        $mail->addAttachment($filePath, $fileName);
-    }
+     $mail->addStringAttachment($content, $fileName);
 }
 
   /**
@@ -105,7 +103,7 @@ class C_MailController extends Controller
       'fromName' => 'nullable|string',
       'fromEmail' => 'nullable|email',
       'file' => 'nullable|array',
-      'file.*' => 'file|max:10240',
+      'file.*' => 'string',
       
     ]);
     try {
@@ -115,7 +113,7 @@ class C_MailController extends Controller
       $altBody = $request->input('altBody', '');
       $fromName = $request->input('fromName', 'WIZIA');
       $fromEmail = $request->input('fromEmail', 'contact@dimitribeziau.fr');
-      $file = $request->file('file');
+      $file = $request->input('file');
      
 
       foreach ($to as $destinataire) {
@@ -131,14 +129,18 @@ class C_MailController extends Controller
         $mail->AltBody = $altBody;
         // $mail->addCC('cc1@exemple.com', 'Elena'); // CC et BCC
         // $mail->addBCC('bcc1@exemple.com', 'Alex');// CC et BCC
+      
         if ($file) {
+         
     if (is_array($file)) {
-        foreach ($file as $file) {
-            $this->addAttachment($mail, $file->getRealPath(), $file->getClientOriginalName());  
-        }
-    } else {
-        $this->addAttachment($mail, $file->getRealPath(), $file->getClientOriginalName());    
+    foreach ($file as $url) {
+        $content = file_get_contents($url);
+        $this->addAttachment($mail, $content, basename($url));
     }
+} else {
+    $content = file_get_contents($file);
+    $this->addAttachment($mail, $content, basename($file));
+}
 }        // juste poue les test ne pas envoyé de mail
         if (!$mail->send()) {
           throw new \Exception("Échec de l'envoi à $destinataire : " . $mail->ErrorInfo);
@@ -162,7 +164,7 @@ public function createPublishMail(Request $request)
         'fromName' => 'nullable|string',
         'fromEmail' => 'nullable|email',
         'file' => 'nullable|array',
-        'file.*' => 'file|max:10240',
+        'file.*' => 'string',
         'idMailing' => 'nullable|integer',
         'now' => 'nullable|boolean',
         'isValidated' => 'nullable|integer|in:0,1',
@@ -177,7 +179,7 @@ public function createPublishMail(Request $request)
         $altBody = $request->input('altBody', '');
         $fromName = $request->input('fromName', 'WIZIA');
         $fromEmail = $request->input('fromEmail', 'contact@dimitribeziau.fr');
-        $file = $request->file('file');
+        $file = $request->input('file');
         $idMail = $request->input('idMailing', null);
         $isValidated = $request->input('isValidated');
         $dateMail = $request->input('dateMail');
@@ -193,8 +195,9 @@ public function createPublishMail(Request $request)
                 'altBody' => $altBody,
                 'fromName' => $fromName,
                 'fromEmail' => $fromEmail,
+                'file' => $file,
             ]);
-
+           
             $response = $this->generateMail($reqMail);
 
            
@@ -259,7 +262,7 @@ public function createPublishMail(Request $request)
                     "isValidated" => $isValidatedBool,
                     "isPublished" => false,
                 ]);
-                   
+                  
                 $mailResponse = $this->AddMail($reqAdd, $idUser);
             }
             
@@ -400,7 +403,7 @@ public function AddMail(Request $request, $idUser)
         $validated = $request->validate([
             'to' => 'required|array',
             'to.*' => 'email',
-            'toListId' => 'required|array',
+            'toListId' => 'nullable|array',
             'toListId.*' => 'integer',
             'subject' => 'required|string',
             'body' => 'required|string',
@@ -408,20 +411,20 @@ public function AddMail(Request $request, $idUser)
             'fromName' => 'nullable|string',
             'fromEmail' => 'nullable|email',
             'file' => 'nullable|array',
-            'file.*' => 'file|max:10240',
+            'file.*' => 'string',
             'date' => 'nullable|date',
-            'isValidated' => 'boolean',
+            'isValidated' => 'nullable|boolean',
             'isPublished' => 'nullable|boolean',
         ]);
-
+        
         // Créer le mailing
         $mail = new Mailings();
         $mail->idUser = $idUser;
         $mail->subject = $validated['subject'];
         $mail->body = $validated['body'];
         $mail->altBody = $validated['altBody'] ?? null;
-        $mail->fromName = $validated['fromName'] ?? null;
-        $mail->fromEmail = $validated['fromEmail'] ?? null;
+        $mail->fromName = $validated['fromName'] ?? "WIZIA@gmail.com";
+        $mail->fromEmail = $validated['fromEmail'] ?? "wiz.ia@dimitribeziau.fr";
         $mail->isPublished = $validated['isPublished'] ?? false;
         $mail->isValidated = $validated['isValidated'] ?? false;
         $mail->date = $validated['date'] ?? date('Y-m-d H:i:s');
@@ -436,26 +439,38 @@ public function AddMail(Request $request, $idUser)
         }
 
         // Gestion des fichiers
-        if (isset($validated['file']) && is_array($validated['file'])) {
-            foreach ($validated['file'] as $file) {
-                // Créer et sauvegarder la pièce jointe
-                $pieceJointe = new PieceJointes();
-                $pieceJointe->type = $file->getMimeType();
-                $pieceJointe->idUser = $idUser;
-                $pieceJointe->path = $file->getClientOriginalName(); //$file->store('mailings', 'public');
-                $pieceJointe->save();
-                // // Sauvegarder le fichier
-                // $path = $file->store('mailings', 'public');
-                // $pieceJointe->path = $path;
-                // $pieceJointe->save();
-                
-                // Créer la liaison avec le mailing
-                $pieceJointeMailing = new PieceJointeMailings();
-                $pieceJointeMailing->idPieceJointe = $pieceJointe->id;
-                $pieceJointeMailing->idMailing = $mail->id;
-                $pieceJointeMailing->save();
+  if (isset($validated['file']) && is_array($validated['file'])) {
+    foreach ($validated['file'] as $file) {
+        $pieceJointe = new PieceJointes();
+       
+        // Si $file est une URL, on tente de récupérer le type MIME via HTTP headers
+        if (filter_var($file, FILTER_VALIDATE_URL)) {
+            $headers = get_headers($file, 1);
+            $mimeType = isset($headers['Content-Type']) ? (is_array($headers['Content-Type']) ? $headers['Content-Type'][0] : $headers['Content-Type']) : null;
+            // Si on n'a pas le type, fallback sur extension
+            if (!$mimeType) {
+                $ext = pathinfo(parse_url($file, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $mimeType = $ext ? $this->mime_content_type_from_extension($ext) : null;
             }
+        } else {
+            // Sinon, on tente localement
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file);
+            finfo_close($finfo);
         }
+
+        $pieceJointe->type = $mimeType;
+        $pieceJointe->idUser = $idUser;
+        $pieceJointe->path = $file; // On stocke bien l'URL ou le chemin
+        
+        $pieceJointe->save();
+
+        $pieceJointeMailing = new PieceJointeMailings();
+        $pieceJointeMailing->idPieceJointe = $pieceJointe->id;
+        $pieceJointeMailing->idMailing = $mail->id;
+        $pieceJointeMailing->save();
+    }
+}
        
         return response()->json([
             'success' => true,
@@ -473,6 +488,19 @@ public function AddMail(Request $request, $idUser)
             'line' => $e->getLine(),
         ], 500);
     }
+}
+
+function mime_content_type_from_extension($ext) {
+    $map = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'pdf' => 'application/pdf',
+        // Ajoute d'autres extensions si besoin
+    ];
+    $ext = strtolower($ext);
+    return $map[$ext] ?? 'application/octet-stream';
 }
   /**
    * @OA\Put(
@@ -528,12 +556,10 @@ public function updateMailing(Request $request, $iduser)
             'fromEmail' => 'nullable|email',
             'isValidated' => 'nullable|boolean',
             'isPublished' => 'nullable|boolean',
-
             'toListId' => 'nullable|array',
             'toListId.*' => 'integer',
-
             'file' => 'nullable|array',
-            'file.*' => 'file|max:10240'
+            'file.*' => 'string'
         ]);
         $idMailing = $validated['idMailing'];
          if (!ctype_digit((string)$idMailing)) {

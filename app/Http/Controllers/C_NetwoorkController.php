@@ -1235,7 +1235,7 @@ public function UploadPictureNetwork(Request $request)
 {
      try {
       $request->validate([
-        'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'file' => 'required|image|mimes:jpeg,png,jpg,gif',
 
       ]);
       $image = $request->file('file');
