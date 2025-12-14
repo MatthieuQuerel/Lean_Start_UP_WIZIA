@@ -19,8 +19,8 @@ return new class extends Migration
       $table->boolean('isPublished')->default(false);
       $table->enum('network', ['facebook', 'linkedin', 'instagram']);
       $table->string('url',500)->nullable();
-      $table->string('titrePost',500)->nullable();
-      $table->string('post', 500);
+      $table->string('titrePost',1000)->nullable();
+      $table->string('post', 1000);
       $table->string('IdpostNetwork');
       $table->string('postLikeNetwork')->nullable();
       $table->string('postCommentaireNetwork')->nullable();

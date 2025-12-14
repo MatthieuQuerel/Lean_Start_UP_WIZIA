@@ -11,5 +11,9 @@ class PieceJointes extends Model
             'type',
             'idUser'
         ];
+    public function mailings()
+{
+    return $this->hasMany(PieceJointeMailings::class, 'idPieceJointe');
+}
 
 }

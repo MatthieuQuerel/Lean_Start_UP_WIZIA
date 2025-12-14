@@ -10,4 +10,8 @@ class PieceJointeMailings extends Model
     'idPieceJointe',
     'idMailing'
   ];
+   public function pieceJointe()
+    {
+        return $this->belongsTo(PieceJointes::class, 'idPieceJointe');
+    }
 }
