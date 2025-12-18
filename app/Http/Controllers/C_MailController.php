@@ -1021,7 +1021,11 @@ public function getListDestinataireEmail(Request $request)
         }
 
         // Récupération des mailings de l'utilisateur
-        $mailings = Mailings::where('idUser', $idUser)->get();
+        $mailings = Mailings::with('files')->where('idUser', $idUser)->get();
+        foreach($mailings as $mailing){
+            $mailing->file = $mailing->files->pluck('path')->toArray();
+            unset($mailing->files);
+        }
 
         if ($mailings->isEmpty()) {
             return response()->json([
@@ -1031,21 +1035,12 @@ public function getListDestinataireEmail(Request $request)
             ], 200);
         }
 
-        // Récupérer les IDs des mailings
-        $mailingIds = $mailings->pluck('id');
-        
-        // Jointure : pièces jointes liées aux mailings
-        $pieceJointeIds = PieceJointeMailings::whereIn('idMailing', $mailingIds)
-        ->pluck('idPieceJointe');
-        
-        $paths = PieceJointes::whereIn('id', $pieceJointeIds)
-        // Récupérer uniquement les paths
-            ->pluck('path');
+     
 
         return response()->json([
             'success' => true,
             'data' => $mailings,
-            'paths' => $paths
+            
         ], 200);
 
     } catch (\Exception $e) {

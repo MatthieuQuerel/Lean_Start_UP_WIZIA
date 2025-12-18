@@ -17,4 +17,14 @@ class Mailings extends Model
     'isPublished',
     'isValidated',
     ];
+
+    public function files()
+{
+    return $this->belongsToMany(
+        \App\Models\PieceJointes::class,
+        'piece_jointe_mailings',
+        'idMailing',
+        'idPieceJointe'
+    );
+}
 }
