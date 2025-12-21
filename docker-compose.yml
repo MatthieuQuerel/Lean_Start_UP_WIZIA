@@ -47,6 +47,7 @@ services:
       - ./docker/nginx:/etc/nginx/conf.d/
     networks:
       - wizia-network
+      - public
     depends_on:
       - app
 
@@ -75,6 +76,7 @@ services:
     container_name: wizia-pma
     networks:
       - wizia-network
+      - public
     ports:
       - "8081:80"
     environment:
@@ -86,3 +88,5 @@ services:
 networks:
   wizia-network:
     driver: bridge
+  public:
+    external: true
