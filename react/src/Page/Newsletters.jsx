@@ -25,8 +25,8 @@ const Newsletters = () => {
   });
 
   const [Mail, setMail] = useState({
-    fromEmail: "wiz.ia@dimitribeziau.fr",
-    fromName: "WIZIA@gmail.com",
+    fromEmail: "dimitri@beziau.dev",
+    fromName: "Wizia",
     to: [],
     toListId: [],
     body: '',
