@@ -28,7 +28,7 @@ jobs:
             docker compose down
             rm /home/${{ secrets.DEPLOY_USER }}/DockerApps/${{ secrets.REPO_SLUG }}
             cd /home/${{ secrets.DEPLOY_USER }}/DockerApps
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/github_auth" git clone git@github.com:MatthieuQuerel/${{ secrets.REPO_SLUG }}.git
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/github_auth" git clone git@github.com:MatthieuQuerel/Lean_Start_UP_WIZIA.git
             cd /home/${{ secrets.DEPLOY_USER }}/DockerApps/${{ secrets.REPO_SLUG }}
             echo "APP_NAME=Wizia" > .env
             echo "APP_ENV=local" >> .env
