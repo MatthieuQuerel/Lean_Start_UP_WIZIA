@@ -185,7 +185,7 @@ public function createPublishMail(Request $request)
         $dateMail = $request->input('dateMail');
         $now = $request->input('now');
         $idUser = $request->input('idUser');
-
+      
         if ($now == true) {
             $reqMail = clone $request;
             $reqMail->replace([
