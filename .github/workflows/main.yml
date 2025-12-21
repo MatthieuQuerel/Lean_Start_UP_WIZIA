@@ -24,12 +24,12 @@ jobs:
           key: ${{ secrets.SSH_KEY_GITHUB_WIZIA }}
           port: ${{ secrets.DEPLOY_PORT }}
           script: |
-            cd /home/${{ secrets.DEPLOY_USER }}/DockerApps/${{ secrets.REPO_SLUG }}
+            cd /home/${{ secrets.DEPLOY_USER }}/DockerApps/Lean_Start_UP_WIZIA
             docker compose down
-            rm /home/${{ secrets.DEPLOY_USER }}/DockerApps/${{ secrets.REPO_SLUG }}
+            rm -rf /home/${{ secrets.DEPLOY_USER }}/DockerApps/Lean_Start_UP_WIZIA
             cd /home/${{ secrets.DEPLOY_USER }}/DockerApps
             GIT_SSH_COMMAND="ssh -i ~/.ssh/github_auth" git clone git@github.com:MatthieuQuerel/Lean_Start_UP_WIZIA.git
-            cd /home/${{ secrets.DEPLOY_USER }}/DockerApps/${{ secrets.REPO_SLUG }}
+            cd /home/${{ secrets.DEPLOY_USER }}/DockerApps/Lean_Start_UP_WIZIA
             echo "APP_NAME=Wizia" > .env
             echo "APP_ENV=local" >> .env
             echo "APP_KEY=base64:99YIxVdtX4sTr4l+QfAUURCzsAxoiWtKaOXj9/+Fj10=" >> .env
