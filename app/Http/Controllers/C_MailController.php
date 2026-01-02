@@ -103,12 +103,30 @@ class C_MailController extends Controller
         return response()->json([
           'success' => true,
           'message' => "SMTP Connect Successful!",
+          'config_check' => [
+            'host' => $mail->Host,
+            'port' => $mail->Port,
+            'encryption' => $encryption,
+            'username_set' => !empty($mail->Username),
+            'username_len' => strlen($mail->Username),
+            'password_set' => !empty($mail->Password),
+            'password_len' => strlen($mail->Password),
+          ],
           'log' => $outputBuffer
         ]);
       } else {
         return response()->json([
           'success' => false,
           'message' => "SMTP Connect Failed",
+          'config_check' => [
+            'host' => $mail->Host,
+            'port' => $mail->Port,
+            'encryption' => $encryption,
+            'username_set' => !empty($mail->Username),
+            'username_len' => strlen($mail->Username),
+            'password_set' => !empty($mail->Password),
+            'password_len' => strlen($mail->Password),
+          ],
           'log' => $outputBuffer
         ], 500);
       }
