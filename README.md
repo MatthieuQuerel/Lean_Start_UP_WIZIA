@@ -13,12 +13,16 @@ Ce readme servira au lancement de back-end de wizia
 
 ```
 git clone https://github.com/MatthieuQuerel/Lean_Start_UP_WIZIA
+cd Lean_Start_UP_WIZIA
+
 mkdir docker_build
-cd ./Lean_Start_UP_WIZIA
-cp ./.env.example ../docker_build/.env
-cp ./docker-compose.prod.yml ../docker_build/docker-compose.prod.yml
-cd ../docker_build
-docker compose up -d
+
+copy .env.example docker_build\.env
+copy docker-compose.prod.yml docker_build\docker-compose.prod.yml
+
+cd docker_build
+docker compose -f docker-compose.prod.yml up -d
+
 ```
 
 

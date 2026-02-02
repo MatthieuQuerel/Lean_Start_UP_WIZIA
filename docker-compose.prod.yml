@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/${GITHUB_REPOSITORY}/app:latest
+    image: ghcr.io/https://github.com/MatthieuQuerel/Lean_Start_UP_WIZIA/app:latest
     container_name: wizia-app
     restart: unless-stopped
     volumes:
