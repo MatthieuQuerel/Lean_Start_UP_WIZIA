@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/https://github.com/MatthieuQuerel/Lean_Start_UP_WIZIA/app:latest
+    image: ghcr.io/matthieuquerel/lean_start_up_wizia/app:latest
     container_name: wizia-app
     restart: unless-stopped
     volumes:
@@ -36,7 +36,7 @@ services:
       - db
 
   web:
-    image: ghcr.io/${GITHUB_REPOSITORY}/nginx:latest
+    image: ghcr.io/matthieuquerel/lean_start_up_wizia/nginx:latest
     container_name: wizia-web
     restart: unless-stopped
     ports:
