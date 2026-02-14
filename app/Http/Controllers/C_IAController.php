@@ -163,6 +163,14 @@ class C_IAController extends Controller
         // 1024x1024 → grande image carrée (par défaut dans ton code)
         // 1024x1792 → portrait (format vertical)
 
+        if (empty($this->keyApigpt)) {
+            $this->keyApigpt = env('key_API_GPT');
+        }
+
+        if (empty($this->keyApigpt)) {
+            return response()->json(['error' => 'Erreur configuration : La clé API GPT (key_API_GPT) est manquante.'], 500);
+        }
+
         $ch = curl_init($this->gptApiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
