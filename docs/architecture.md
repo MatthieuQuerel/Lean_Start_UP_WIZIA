@@ -102,3 +102,113 @@ Pour assurer la haute disponibilité de notre application et suivre ses performa
 ### Code Scan GitHub
 
 ![Code scan GitHub ](./evidence/Code_scan.png)
+
+## Rollback
+
+En cas d'échec d'une mise en production, voici la procédure à suivre pour revenir à un état stable.
+
+### 1. Identifier la version précédente (image Docker)
+
+Chaque image Docker poussée sur le GitHub Container Registry (GHCR) est taguée avec le **SHA du commit** en plus du tag `latest`. Cela permet de revenir à n'importe quelle version précédente.
+
+Pour lister les images disponibles :
+
+```bash
+# Sur le serveur de production, lister les images disponibles
+docker images ghcr.io/dimibeziau/wizia/app
+docker images ghcr.io/dimibeziau/wizia/nginx
+```
+
+Le tag suit le format `sha-<7 premiers caractères du commit>`, par exemple `sha-a1b2c3d`.
+
+### 2. Rollback des conteneurs Docker
+
+Se connecter en SSH au serveur de production et exécuter :
+
+```bash
+cd /home/<user>/DockerApps/Lean_Start_UP_WIZIA
+
+# Modifier le docker-compose.yml pour pointer vers l'image précédente remplacer le tag 'latest' par le tag SHA de la version stable
+# Exemple : ghcr.com/dimibeziau/wizia/app:sha-a1b2c3d
+
+# Puis redémarrer les conteneurs
+docker compose down
+docker compose up -d
+```
+
+Alternativement, si l'image `latest` précédente est encore en cache local :
+
+```bash
+# Forcer le pull de l'image précédente par son tag SHA
+docker pull ghcr.io/dimibeziau/wizia/app:sha-<commit_sha>
+docker pull ghcr.io/dimibeziau/wizia/nginx:sha-<commit_sha>
+
+# Stopper et relancer avec les anciennes images
+docker compose down
+docker compose up -d
+```
+
+### 3. Rollback des migrations de base de données
+
+Si la mise en production incluait des migrations Laravel qui ont échoué ou causé des problèmes :
+
+```bash
+# Entrer dans le conteneur applicatif
+docker exec -it wizia-app bash
+
+# Annuler la dernière migration
+php artisan migrate:rollback --step=1
+
+# Ou annuler plusieurs migrations (ex: les 3 dernières)
+php artisan migrate:rollback --step=3
+
+# Vérifier l'état des migrations
+php artisan migrate:status
+```
+
+> **Attention** : Le rollback de migrations ne fonctionne que si les méthodes `down()` sont correctement implémentées dans chaque fichier de migration.
+
+### 4. Rollback via Git (re-déploiement)
+
+Si le rollback manuel est trop complexe, la méthode la plus sûre est de **revert le commit** fautif et relancer le pipeline :
+
+```bash
+# En local, revert le dernier commit mergé
+git revert HEAD
+git push origin main
+
+# Le pipeline GitHub Actions se relancera automatiquement
+# et déploiera la version corrigée
+```
+
+### 5. Procédure d'urgence
+
+En cas de panne critique nécessitant une action immédiate :
+
+```bash
+# 1. Mettre l'application en mode maintenance
+docker exec -it wizia-app php artisan down --secret="<token-urgence>"
+
+# 2. Diagnostiquer le problème
+docker logs wizia-app --tail=100
+docker logs wizia-web --tail=100
+
+# 3. Une fois le rollback effectué, remettre en ligne
+docker exec -it wizia-app php artisan up
+```
+
+### Résumé des commandes clés
+
+| Situation | Commande |
+|---|---|
+| Voir les images disponibles | `docker images ghcr.io/dimibeziau/backend_wizia/app` |
+| Rollback conteneurs | `docker compose down && docker compose up -d` |
+| Rollback 1 migration | `docker exec -it wizia-app php artisan migrate:rollback --step=1` |
+| Mode maintenance | `docker exec -it wizia-app php artisan down` |
+| Fin maintenance | `docker exec -it wizia-app php artisan up` |
+| Revert Git | `git revert HEAD && git push origin main` |
+
+---
+
+Explication de la démarche DevSecOps [DevSecOps](./DevSecOps.md)
+
