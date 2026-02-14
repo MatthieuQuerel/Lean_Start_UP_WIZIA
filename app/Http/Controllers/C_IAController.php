@@ -204,7 +204,7 @@ class C_IAController extends Controller
 
             file_put_contents($savePath, $imageContent);
 
-            $url = env('APP_URL').'/storage/NetworkPicture/'.$imageName;
+            $url = rtrim(env('APP_URL'), '/').'/storage/NetworkPicture/'.$imageName;
 
             return response()->json(['image_url' => $url]);
         } else {
