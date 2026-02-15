@@ -188,7 +188,7 @@ jobs:
           tags: ${{ steps.meta-nginx.outputs.tags }}
           labels: ${{ steps.meta-nginx.outputs.labels }}
           build-args: |
-            APP_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/app:latest
+            APP_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/app:latest 
 
   trivy-scan:
     name: Security Scan (Trivy)
