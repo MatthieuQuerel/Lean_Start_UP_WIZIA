@@ -4,7 +4,7 @@ services:
     container_name: wizia-app
     restart: unless-stopped
     volumes:
-      - wizia-storage:/var/www/storage
+      - wizia-data:/var/www
     networks:
       - wizia-network
     environment:
@@ -32,6 +32,7 @@ services:
 
       # Others
       KEY_API_GEMINI: ${KEY_API_GEMINI}
+      key_API_GPT: ${key_API_GPT}
     depends_on:
       - db
 
@@ -42,7 +43,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - wizia-storage:/var/www/storage
+      - wizia-data:/var/www
     networks:
       - wizia-network
       - public
@@ -89,4 +90,4 @@ networks:
     external: true
 
 volumes:
-  wizia-storage:
+  wizia-data:
