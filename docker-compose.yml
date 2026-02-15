@@ -34,6 +34,7 @@ services:
 
       # Others
       KEY_API_GEMINI: ${KEY_API_GEMINI}
+      key_API_GPT: ${key_API_GPT}
     depends_on:
       - db
 

@@ -4,7 +4,7 @@ services:
     container_name: wizia-app
     restart: unless-stopped
     volumes:
-      - wizia-data:/var/www
+      - wizia-storage:/var/www/storage
     networks:
       - wizia-network
     environment:
@@ -42,7 +42,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - wizia-data:/var/www
+      - wizia-storage:/var/www/storage
     networks:
       - wizia-network
       - public
@@ -89,4 +89,4 @@ networks:
     external: true
 
 volumes:
-  wizia-data:
+  wizia-storage:
