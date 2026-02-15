@@ -13,25 +13,15 @@ Ce readme servira au lancement de back-end de wizia
 
 ```
 git clone https://github.com/MatthieuQuerel/Lean_Start_UP_WIZIA
-mkdir docker_build
 cd ./Lean_Start_UP_WIZIA
-cp ./.env.example ../docker_build/.env
-cp ./docker-compose.prod.yml ../docker_build/docker-compose.yml
-cd ../docker_build
+cp ./.env.example ./.env
 docker network create public
-docker compose up -d
-
+docker compose -f docker-compose.prod.yml up -d
 ```
+Attention, veuillez attendre un peu, cela peut prendre un peu de temps.
 
-<!-- il faut ouvrir le projet Lean_Start_UP_WIZIA
-```
-docker run --rm -v ${PWD}:/app -e COMPOSER_PROCESS_TIMEOUT=900 composer install --ignore-platform-reqs
-cd ./docker_build
-docker exec wizia-app composer install
-docker exec wizia-app php artisan key:generate
-docker exec wizia-app php artisan migrate
+![Page](./docs/evidence/404.png)
 
-``` -->
 L'accès au backend de l'application se fait sur [http://localhost:8000](http://localhost:8000)
 Le visuel sur la base de données est accessible depuis [http://localhost:8081](http://localhost:8081), avec les identifiants enregistrés dans le fichier docker_build/.env
 
