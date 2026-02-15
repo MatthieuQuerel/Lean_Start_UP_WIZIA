@@ -22,6 +22,16 @@ docker network create public
 docker compose up -d
 
 ```
+
+il faut ouvrir le projet Lean_Start_UP_WIZIA
+```
+docker run --rm -v ${PWD}:/app -e COMPOSER_PROCESS_TIMEOUT=900 composer install --ignore-platform-reqs
+cd ./docker_build
+docker exec wizia-app composer install
+docker exec wizia-app php artisan key:generate
+docker exec wizia-app php artisan migrate
+
+```
 L'accès au backend de l'application se fait sur [http://localhost:8000](http://localhost:8000)
 Le visuel sur la base de données est accessible depuis [http://localhost:8081](http://localhost:8081), avec les identifiants enregistrés dans le fichier docker_build/.env
 
