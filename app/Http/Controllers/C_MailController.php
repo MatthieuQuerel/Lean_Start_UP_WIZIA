@@ -557,8 +557,8 @@ class C_MailController extends Controller
 
                     // Si $file est une URL, on tente de récupérer le type MIME via HTTP headers
                     if (filter_var($file, FILTER_VALIDATE_URL)) {
-                        $headers = get_headers($file, 1);
-                        $mimeType = isset($headers['Content-Type']) ? (is_array($headers['Content-Type']) ? $headers['Content-Type'][0] : $headers['Content-Type']) : null;
+                        $headers = @get_headers($file, 1);
+                        $mimeType = ($headers && isset($headers['Content-Type'])) ? (is_array($headers['Content-Type']) ? $headers['Content-Type'][0] : $headers['Content-Type']) : null;
                         // Si on n'a pas le type, fallback sur extension
                         if (! $mimeType) {
                             $ext = pathinfo(parse_url($file, PHP_URL_PATH), PATHINFO_EXTENSION);
