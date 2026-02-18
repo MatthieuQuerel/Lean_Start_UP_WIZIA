@@ -95,7 +95,7 @@ jobs:
             echo "VITE_APP_NAME=\${APP_NAME}" >> .env
             echo "KEY_API_GEMINI=${{ secrets.KEY_API_GEMINI }}" >> .env
             echo "key_API_GPT=${{ secrets.key_API_GPT }}" >> .env
-            echo "KeyMake=${{ secrets.keyMake }}" >> .env
+            echo "KeyMake=${{ secrets.KEYMAKE }}" >> .env
 
       - name: Generate Key
         run: php artisan key:generate
@@ -332,7 +332,7 @@ jobs:
             echo "VITE_APP_NAME=\${APP_NAME}" >> .env
             echo "KEY_API_GEMINI=${{ secrets.KEY_API_GEMINI }}" >> .env
             echo "key_API_GPT=${{ secrets.key_API_GPT }}" >> .env
-            echo "KeyMake=${{ secrets.keyMake }}" >> .env
+            echo "KeyMake=${{ secrets.KEYMAKE }}" >> .env
             
             # Pull and restart
             # Note: docker compose pull might need authentication if the package is private.
