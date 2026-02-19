@@ -1251,8 +1251,7 @@ class C_NetwoorkController extends Controller
     {
         try {
             $request->validate([
-                'file' => 'required|image|mimes:jpeg,png,jpg,gif',
-
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480',
             ]);
             $image = $request->file('file');
             $imagePath = $image->store('NetworkPicture', 'public');
