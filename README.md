@@ -16,7 +16,7 @@ git clone https://github.com/MatthieuQuerel/Lean_Start_UP_WIZIA
 cd ./Lean_Start_UP_WIZIA
 cp ./.env.example ./.env
 docker network create public
-docker compose -f docker-compose.prod.yml up -d
+docker compose up -d
 ```
 Attention, veuillez attendre un peu, cela peut prendre un peu de temps.
 
