@@ -29,14 +29,6 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache 2>/dev/null || echo "⚠�
 # chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # ──────────────────────────────────────────────
-# 3. Installer les dépendances Composer
-# ──────────────────────────────────────────────
-if [ ! -f /var/www/vendor/autoload.php ]; then
-  echo "📦 Installation des dépendances Composer..."
-  composer install --no-interaction --optimize-autoloader
-fi
-
-# ──────────────────────────────────────────────
 # 3. Lien symbolique public/storage -> storage/app/public
 # ──────────────────────────────────────────────
 php artisan storage:link --force 2>/dev/null || true
