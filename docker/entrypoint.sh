@@ -32,9 +32,24 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache 2>/dev/null || echo "⚠�
 # 3. Lien symbolique public/storage -> storage/app/public
 # ──────────────────────────────────────────────
 php artisan storage:link --force 2>/dev/null || true
+# ──────────────────────────────────────────────
+# 4. Attente de MySQL
+# ──────────────────────────────────────────────
+echo "⏳ Attente de MySQL..."
+MAX_TRIES=30
+COUNT=0
+until php -r "new PDO('mysql:host=${DB_HOST};port=${DB_PORT}', '${DB_USERNAME}', '${DB_PASSWORD}');" 2>/dev/null; do
+  COUNT=$((COUNT + 1))
+  if [ $COUNT -ge $MAX_TRIES ]; then
+    echo "❌ MySQL non disponible après ${MAX_TRIES} tentatives"
+    break
+  fi
+  echo "  ⏳ MySQL pas encore prêt... tentative $COUNT/$MAX_TRIES"
+  sleep 2
+done
 
 # ──────────────────────────────────────────────
-# 4. Migrations
+# 5. Migrations
 # ──────────────────────────────────────────────
 echo "🚀 Exécution des migrations..."
 php artisan migrate --force || echo "⚠️  Migrations échouées, poursuite du démarrage..."
@@ -44,3 +59,4 @@ php artisan migrate --force || echo "⚠️  Migrations échouées, poursuite du
 # ──────────────────────────────────────────────
 echo "🚀 Démarrage de l'application..."
 exec "$@"
+

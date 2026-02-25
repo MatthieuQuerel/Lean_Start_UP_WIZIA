@@ -24,8 +24,8 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 RUN echo "upload_max_filesize=1G" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "post_max_size=1G" >> /usr/local/etc/php/conf.d/uploads.ini
 
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# # Get latest Composer
+# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Create system user to run Composer and Artisan Commands
 RUN useradd -G www-data,root -u $uid -d /home/$user $user
