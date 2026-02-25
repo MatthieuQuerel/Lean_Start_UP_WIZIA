@@ -100,8 +100,10 @@ Pour assurer la haute disponibilité de notre application et suivre ses performa
 ![Monitoring ](./evidence/Log.png)
 
 ### Code Scan GitHub
-
 ![Code scan GitHub ](./evidence/Code_scan.png)
+
+### Recettage de l'application
+[Lien du recettage](https://eduservices-my.sharepoint.com/:x:/r/personal/dimitri_beziau_my-digital-school_org/_layouts/15/doc2.aspx?sourcedoc=%7B3A8FAC11-2EF1-418A-9B11-A108AB222936%7D&file=Test-Plan-wizia.xlsx&fromShare=true&action=default&mobileredirect=true)
 
 ## Rollback
 
